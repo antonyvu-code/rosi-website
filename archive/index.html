@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROSI — Flagship Ocean Experiences & Lifestyle</title>
+    <meta name="description" content="Rosi is a global ocean lifestyle brand. Awwwards-winning flagship booking desk for charter boats, catch & dine packages, and pro gear.">
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+    <meta name="theme-color" content="#0a2440">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- GSAP for Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <!-- Ionicons for modern icons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="loading">
+    
+    <!-- Custom Cursor Canvas / Particle Effect -->
+    <canvas id="cursor-canvas"></canvas>
+
+    <!-- Page Transition Curtain overlay -->
+    <div class="curtain-transition" id="page-curtain"></div>
+
+    <!-- Header / Navigation -->
+    <header class="header">
+        <div class="header-container">
+            <a href="#hero" class="logo" aria-label="ROSI — Ocean Lifestyle home">
+                <img src="assets/logo-light.png" alt="ROSI" class="logo-img">
+            </a>
+            
+            <nav class="nav">
+                <a href="#hero" class="nav-link active" data-i18n="nav.home">Home</a>
+                <a href="#locations" class="nav-link" data-i18n="nav.locations">Locations</a>
+                <a href="#pillars" class="nav-link" data-i18n="nav.activities">Activities</a>
+                <a href="#experiences" class="nav-link" data-i18n="nav.experiences">Experiences</a>
+                <a href="#diving" class="nav-link" data-i18n="nav.diving">Diving</a>
+                <a href="#shop" class="nav-link" data-i18n="nav.shop">Gear Shop</a>
+                <a href="#concierge" class="nav-link" data-i18n="nav.concierge">Concierge</a>
+                <a href="#about" class="nav-link" data-i18n="nav.about">About</a>
+            </nav>
+
+            <div class="header-actions">
+                <!-- Immersive Audio Toggle and Equalizer Bars -->
+                <div class="audio-toggle-wrapper" id="audio-toggle-container">
+                    <button class="audio-toggle-btn" id="audio-btn">
+                        <ion-icon name="volume-mute-outline" id="audio-icon"></ion-icon>
+                    </button>
+                    <div class="equalizer-bars" id="eq-visualizer">
+                        <span class="eq-bar bar1"></span>
+                        <span class="eq-bar bar2"></span>
+                        <span class="eq-bar bar3"></span>
+                        <span class="eq-bar bar4"></span>
+                    </div>
+                </div>
+
+                <!-- Language Selector (6 Languages) -->
+                <div class="lang-selector" id="lang-selector">
+                    <button class="lang-current" id="lang-current-btn" aria-haspopup="listbox" aria-expanded="false">
+                        <span class="lang-current-code" id="lang-current-code">EN</span>
+                        <ion-icon name="chevron-down-outline" class="lang-caret"></ion-icon>
+                    </button>
+                    <div class="lang-dropdown" id="lang-dropdown" role="listbox">
+                        <button class="lang-btn active" data-lang="en" role="option"><span class="lang-code">EN</span><span class="lang-name">English</span></button>
+                        <button class="lang-btn" data-lang="de" role="option"><span class="lang-code">DE</span><span class="lang-name">Deutsch</span></button>
+                        <button class="lang-btn" data-lang="fr" role="option"><span class="lang-code">FR</span><span class="lang-name">Français</span></button>
+                        <button class="lang-btn" data-lang="es" role="option"><span class="lang-code">ES</span><span class="lang-name">Español</span></button>
+                        <button class="lang-btn" data-lang="it" role="option"><span class="lang-code">IT</span><span class="lang-name">Italiano</span></button>
+                        <button class="lang-btn" data-lang="vi" role="option"><span class="lang-code">VI</span><span class="lang-name">Tiếng Việt</span></button>
+                    </div>
+                </div>
+
+                <!-- Profile Dashboard Trigger -->
+                <button class="profile-toggle-btn" id="profile-toggle">
+                    <ion-icon name="person-outline"></ion-icon>
+                </button>
+
+                <!-- Shopping Cart Icon -->
+                <button class="cart-toggle-btn" id="cart-toggle">
+                    <ion-icon name="bag-handle-outline"></ion-icon>
+                    <span class="cart-badge" id="cart-badge-count">0</span>
+                </button>
+
+                <!-- Book Now Floating CTA -->
+                <button class="btn btn-accent header-book-btn" onclick="openBooking()" data-i18n="nav.booknow">Book Now</button>
+                
+                <!-- Hamburger menu for mobile -->
+                <button class="mobile-nav-toggle" id="mobile-toggle">
+                    <ion-icon name="menu-outline"></ion-icon>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Nav Menu -->
+    <div class="mobile-nav-menu" id="mobile-menu">
+        <a href="#hero" class="mobile-nav-link" data-i18n="nav.home">Home</a>
+        <a href="#locations" class="mobile-nav-link" data-i18n="nav.locations">Locations</a>
+        <a href="#pillars" class="mobile-nav-link" data-i18n="nav.activities">Activities</a>
+        <a href="#experiences" class="mobile-nav-link" data-i18n="nav.experiences">Experiences</a>
+        <a href="#diving" class="mobile-nav-link" data-i18n="nav.diving">Diving</a>
+        <a href="#shop" class="mobile-nav-link" data-i18n="nav.shop">Gear Shop</a>
+        <a href="#concierge" class="mobile-nav-link" data-i18n="nav.concierge">Concierge</a>
+        <a href="#about" class="mobile-nav-link" data-i18n="nav.about">About</a>
+        <button class="btn btn-accent btn-block" onclick="openBooking()" data-i18n="nav.booknow">Book Now</button>
+    </div>
+
+    <!-- Main Content -->
+    <main>
+
+        <!-- 1. Hero Ocean Section (WebGL Waves Backdrop) -->
+        <section id="hero" class="section hero-section">
+            <canvas id="wave-canvas"></canvas>
+            <div class="hero-overlay"></div>
+            
+            <div class="container hero-container">
+                <div class="hero-content">
+                    <span class="hero-tagline glass-panel" data-i18n="hero.tagline">GLOBAL OCEAN EXPERIENCE BRAND</span>
+                    <h1 class="hero-title" id="hero-title">
+                        <span class="gradient-text" data-i18n="hero.title1">From the sea</span><br>
+                        <span data-i18n="hero.title2">to your table</span>
+                    </h1>
+                    <p class="hero-desc" data-i18n="hero.desc">
+                        Embark on the ultimate ocean journey. Charter a boat, catch your own prize, and dine in our signature kitchens worldwide. Your ocean. Your way.
+                    </p>
+                    <div class="hero-ctas">
+                        <a href="#locations" class="btn btn-accent btn-lg" data-i18n="hero.cta1">Explore Hubs</a>
+                        <a href="#experiences" class="btn btn-outline btn-lg" data-i18n="hero.cta2">How It Works</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Banner -->
+            <div class="stats-banner glass-panel">
+                <div class="stats-container container">
+                    <div class="stat-item">
+                        <div class="stat-num" data-count="15">0</div>
+                        <div class="stat-label" data-i18n="stats.locations">Global Hubs</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-num" data-count="85">0</div>
+                        <div class="stat-label" data-i18n="stats.boats">Charter Boats</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-num" data-count="12" data-suffix="K">0</div>
+                        <div class="stat-label" data-i18n="stats.catch">Catches Prepared</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Locations (3D Spinning Globe) -->
+        <section id="locations" class="section locations-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title gradient-text" data-i18n="locations.title">Our Global Coastlines</h2>
+                    <p class="section-subtitle" data-i18n="locations.subtitle">Rotate the 3D marine globe and select a hotspot to check active hubs, current captains, and dining calendars.</p>
+                </div>
+
+                <!-- Locations Grid Layout -->
+                <div class="map-grid-layout">
+                    
+                    <!-- Left: Locations Sidebar Listing -->
+                    <div class="locations-sidebar glass-panel">
+                        <h3 class="sidebar-title" data-i18n="loc.sidebar.title">Coastal Hubs</h3>
+                        <div class="loc-list" id="loc-list-cards">
+                            <!-- Injected dynamically by map.js -->
+                        </div>
+                    </div>
+
+                    <!-- Right: Globe Canvas Wrapper -->
+                    <div class="map-wrapper glass-panel">
+                        <div class="map-loading" id="globe-loader">
+                            <div class="spinner"></div>
+                        </div>
+                        
+                        <div class="globe-container">
+                            <canvas id="globe-canvas"></canvas>
+                            <!-- Instructions overlay -->
+                            <div class="globe-helper" data-i18n="globe.helper"><ion-icon name="move-outline"></ion-icon> Drag to spin the Globe</div>
+                        </div>
+
+                        <!-- Selected Location Overlay Box -->
+                        <div class="location-details-box glass-panel" id="location-details">
+                            <button class="close-box-btn" onclick="hideLocationBox()"><ion-icon name="close-outline"></ion-icon></button>
+                            <h3 class="loc-name" id="loc-title">Amalfi Coast, Italy</h3>
+                            <p class="loc-desc" id="loc-desc">Experience classic Mediterranean fishing and dining with views of towering cliffs.</p>
+                            
+                            <div class="loc-tags">
+                                <span class="loc-tag"><ion-icon name="boat-outline"></ion-icon> <span data-i18n="loc.tag.boats">Boats</span></span>
+                                <span class="loc-tag"><ion-icon name="restaurant-outline"></ion-icon> <span data-i18n="loc.tag.dine">Dine</span></span>
+                                <span class="loc-tag"><ion-icon name="umbrella-outline"></ion-icon> <span data-i18n="loc.tag.water">Water Fun</span></span>
+                            </div>
+                            
+                            <!-- Active available reservation slots indicator -->
+                            <div class="loc-slots-indicator">
+                                <span class="slots-bullet"></span>
+                                <span data-i18n="loc.slots.active">Real-time availability: 4 Boats open today</span>
+                            </div>
+                            
+                            <div class="loc-action">
+                                <button class="btn btn-accent btn-sm btn-block" onclick="startBookingCurrentLocation()" data-i18n="loc.action.book">Book Amalfi Hub</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 2.5 Six Ocean Pillars (includes new Diving service) -->
+        <section id="pillars" class="section pillars-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title gradient-text" data-i18n="pillars.title">Six Ocean Pillars</h2>
+                    <p class="section-subtitle" data-i18n="pillars.subtitle">One brand for the whole ocean lifestyle — from the first cast to the last dive.</p>
+                </div>
+
+                <div class="pillars-grid">
+                    <!-- 1. Boats & Fishing -->
+                    <article class="pillar-card" style="--pillar-img:url('../assets/norway.png')">
+                        <div class="pillar-media"></div>
+                        <div class="pillar-body">
+                            <div class="pillar-icon"><ion-icon name="boat-outline"></ion-icon></div>
+                            <h3 data-i18n="pillar.boats.name">Boats &amp; Fishing</h3>
+                            <p data-i18n="pillar.boats.desc">Charter our fleet with licensed captains and pro guides to the best fishing grounds.</p>
+                            <button class="pillar-link" onclick="openBooking()"><span data-i18n="pillar.explore">Explore</span> <ion-icon name="arrow-forward-outline"></ion-icon></button>
+                        </div>
+                    </article>
+
+                    <!-- 2. Catch & Dine -->
+                    <article class="pillar-card" style="--pillar-img:url('../assets/seafood.png')">
+                        <div class="pillar-media"></div>
+                        <div class="pillar-body">
+                            <div class="pillar-icon"><ion-icon name="restaurant-outline"></ion-icon></div>
+                            <h3 data-i18n="pillar.dine.name">Catch &amp; Dine</h3>
+                            <p data-i18n="pillar.dine.desc">Sell it, self-cook it, or let our chefs plate your catch — straight from sea to table.</p>
+                            <a class="pillar-link" href="#experiences"><span data-i18n="pillar.explore">Explore</span> <ion-icon name="arrow-forward-outline"></ion-icon></a>
+                        </div>
+                    </article>
+
+                    <!-- 3. Diving (NEW) -->
+                    <article class="pillar-card pillar-card-featured" style="--pillar-img:url('../assets/maldives.png')">
+                        <div class="pillar-media"></div>
+                        <span class="pillar-badge" data-i18n="pillar.new">NEW</span>
+                        <div class="pillar-body">
+                            <div class="pillar-icon"><ion-icon name="water-outline"></ion-icon></div>
+                            <h3 data-i18n="pillar.diving.name">Scuba Diving</h3>
+                            <p data-i18n="pillar.diving.desc">Guided reef &amp; wreck dives, PADI courses and freediving for every level.</p>
+                            <a class="pillar-link" href="#diving"><span data-i18n="pillar.explore">Explore</span> <ion-icon name="arrow-forward-outline"></ion-icon></a>
+                        </div>
+                    </article>
+
+                    <!-- 4. Gear Shop -->
+                    <article class="pillar-card" style="--pillar-img:url('../assets/gear.png')">
+                        <div class="pillar-media"></div>
+                        <div class="pillar-body">
+                            <div class="pillar-icon"><ion-icon name="compass-outline"></ion-icon></div>
+                            <h3 data-i18n="pillar.gear.name">Gear Shop</h3>
+                            <p data-i18n="pillar.gear.desc">Premium rods, reels and lures tuned for each coastline.</p>
+                            <a class="pillar-link" href="#shop"><span data-i18n="pillar.explore">Explore</span> <ion-icon name="arrow-forward-outline"></ion-icon></a>
+                        </div>
+                    </article>
+
+                    <!-- 5. Souvenirs -->
+                    <article class="pillar-card" style="--pillar-img:url('../assets/amalfi.png')">
+                        <div class="pillar-media"></div>
+                        <div class="pillar-body">
+                            <div class="pillar-icon"><ion-icon name="gift-outline"></ion-icon></div>
+                            <h3 data-i18n="pillar.souvenirs.name">Souvenirs</h3>
+                            <p data-i18n="pillar.souvenirs.desc">Limited-edition keepsakes unique to every Rosi hub.</p>
+                            <a class="pillar-link" href="#shop"><span data-i18n="pillar.explore">Explore</span> <ion-icon name="arrow-forward-outline"></ion-icon></a>
+                        </div>
+                    </article>
+
+                    <!-- 6. Water Fun -->
+                    <article class="pillar-card" style="--pillar-img:url('../assets/hawaii.png')">
+                        <div class="pillar-media"></div>
+                        <div class="pillar-body">
+                            <div class="pillar-icon"><ion-icon name="sunny-outline"></ion-icon></div>
+                            <h3 data-i18n="pillar.water.name">Water Fun</h3>
+                            <p data-i18n="pillar.water.desc">Surf, parasailing, flyboard and family water sports.</p>
+                            <button class="pillar-link" onclick="openBooking()"><span data-i18n="pillar.explore">Explore</span> <ion-icon name="arrow-forward-outline"></ion-icon></button>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Experiences: Catch & Dine Scroll Story -->
+        <section id="experiences" class="section experiences-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title gradient-text" data-i18n="experiences.title">Catch & Dine Story</h2>
+                    <p class="section-subtitle" data-i18n="experiences.subtitle">A seamless ocean-to-table journey. Learn how the Rosi circle of seafood comes together.</p>
+                </div>
+
+                <!-- Story Slides Tracker -->
+                <div class="story-wrapper">
+                    
+                    <!-- Left: Floating Sticky Image / Animation Panel -->
+                    <div class="story-visual-panel glass-panel">
+                        <!-- Step 1: Vessel Choosing -->
+                        <div class="visual-state active" id="visual-step1">
+                            <div class="visual-boat-container">
+                                <div class="visual-clouds"></div>
+                                <ion-icon name="boat" class="svg-boat"></ion-icon>
+                                <div class="visual-waves">
+                                    <div class="visual-wave wave1"></div>
+                                    <div class="visual-wave wave2"></div>
+                                </div>
+                            </div>
+                            <span class="visual-label" data-i18n="story.v1">1. Choose Your Vessel</span>
+                        </div>
+
+                        <!-- Step 2: Fishing Reel Interactive Mini-game -->
+                        <div class="visual-state" id="visual-step2">
+                            <div class="reel-game-container">
+                                <div class="fish-shadow"></div>
+                                <div class="fishing-line"></div>
+                                <button class="btn btn-accent btn-circle reel-btn" id="reel-action-btn">
+                                    <ion-icon name="sync-outline"></ion-icon>
+                                </button>
+                                <div class="reel-instructions" data-i18n="story.reel.help">Click button to reel in!</div>
+                                <div class="reel-progress-bar">
+                                    <div class="reel-progress-fill" id="reel-progress">0%</div>
+                                </div>
+                            </div>
+                            <span class="visual-label" data-i18n="story.v2">2. Reeling the Prize</span>
+                        </div>
+
+                        <!-- Step 3: Cooking Options -->
+                        <div class="visual-state" id="visual-step3">
+                            <div class="dining-visual-container">
+                                <div class="dish-plate">
+                                    <div class="steaming-food"></div>
+                                    <ion-icon name="restaurant" class="svg-dish"></ion-icon>
+                                </div>
+                                <div class="dining-options-visual">
+                                    <div class="visual-opt opt-sell" onclick="selectDiningOutcome('sell')"><ion-icon name="cash-outline"></ion-icon><span data-i18n="story.opt.sell">Sell</span></div>
+                                    <div class="visual-opt opt-cook" onclick="selectDiningOutcome('cook')"><ion-icon name="flame-outline"></ion-icon><span data-i18n="story.opt.cook">Self Cook</span></div>
+                                    <div class="visual-opt opt-chef active" onclick="selectDiningOutcome('chef')"><ion-icon name="star-outline"></ion-icon><span data-i18n="story.opt.chef">Chef Prepare</span></div>
+                                </div>
+                                <div class="outcome-pricing-preview" id="outcome-desc-box">
+                                    <strong id="outcome-title">Chef's Table (5-Course)</strong>
+                                    <p id="outcome-detail">Bespoke sushi and seaside charcoal grilling by Michelin chefs.</p>
+                                </div>
+                            </div>
+                            <span class="visual-label" data-i18n="story.v3">3. Feast From the Sea</span>
+                        </div>
+                    </div>
+
+                    <!-- Right: Scrolling narrative content -->
+                    <div class="story-content-panel">
+                        <!-- Step 1 -->
+                        <div class="story-step-card active" data-step="1" id="step-card-1">
+                            <div class="step-num">01</div>
+                            <h3 data-i18n="story.step1.title">Choose Your Vessel & Guide</h3>
+                            <p data-i18n="story.step1.desc">
+                                Select from our premium fleet, ranging from nimble speedboats for coastal sports to massive offshore trawlers equipped with pro guides and high-tech radar tracking.
+                            </p>
+                            <ul class="step-bullets">
+                                <li><ion-icon name="checkmark-circle-sharp"></ion-icon> <span data-i18n="story.step1.b1">Fully licensed captains</span></li>
+                                <li><ion-icon name="checkmark-circle-sharp"></ion-icon> <span data-i18n="story.step1.b2">Premium sonar & fish-finding radar</span></li>
+                                <li><ion-icon name="checkmark-circle-sharp"></ion-icon> <span data-i18n="story.step1.b3">Beverages & safety gear included</span></li>
+                            </ul>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="story-step-card" data-step="2" id="step-card-2">
+                            <div class="step-num">02</div>
+                            <h3 data-i18n="story.step2.title">Hook & Fight the Ocean Giants</h3>
+                            <p data-i18n="story.step2.desc">
+                                Head to deep-water trenches or calm reefs. Under our guides' expert instruction, hook majestic tuna, cod, or mahi-mahi. Play the interactive mini-game on the left to feel the tension!
+                            </p>
+                            <ul class="step-bullets">
+                                <li><ion-icon name="checkmark-circle-sharp"></ion-icon> <span data-i18n="story.step2.b1">Professional rods & customized lures</span></li>
+                                <li><ion-icon name="checkmark-circle-sharp"></ion-icon> <span data-i18n="story.step2.b2">Instruction for all skill levels</span></li>
+                                <li><ion-icon name="checkmark-circle-sharp"></ion-icon> <span data-i18n="story.step2.b3">100% catch-guarantee packages available</span></li>
+                            </ul>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="story-step-card" data-step="3" id="step-card-3">
+                            <div class="step-num">03</div>
+                            <h3 data-i18n="story.step3.title">Your Catch, Your Cuisine</h3>
+                            <p data-i18n="story.step3.desc">
+                                Once docked, choose how to celebrate your victory. Choose to sell your catch back to the kitchen to offset your tour, use our self-cooking bays with custom recipes, or have our Michelin-starred chefs curate a bespoke five-course feast.
+                            </p>
+                            <div class="kitchen-modes">
+                                <div class="mode-box" onclick="selectDiningOutcome('sell')">
+                                    <h4 data-i18n="story.mode1.name">Trade-In</h4>
+                                    <p data-i18n="story.mode1.desc">Sell to Rosi Kitchen for credits.</p>
+                                </div>
+                                <div class="mode-box" onclick="selectDiningOutcome('cook')">
+                                    <h4 data-i18n="story.mode2.name">Do It Yourself</h4>
+                                    <p data-i18n="story.mode2.desc">Use our open seaside grills.</p>
+                                </div>
+                                <div class="mode-box active" onclick="selectDiningOutcome('chef')">
+                                    <h4 data-i18n="story.mode3.name">Chef's Gourmet</h4>
+                                    <p data-i18n="story.mode3.desc">Perfectly prepared sashimi & grills.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 3.5 Diving Deep-Dive (NEW pillar feature) -->
+        <section id="diving" class="section diving-section">
+            <div class="diving-bg"></div>
+            <div class="diving-overlay"></div>
+            <div class="container diving-grid">
+                <div class="diving-content">
+                    <span class="diving-tag" data-i18n="diving.tag">NEW · DIVE PILLAR</span>
+                    <h2 class="section-title gradient-text" data-i18n="diving.title">Dive Into the Blue</h2>
+                    <p class="section-desc" data-i18n="diving.desc">
+                        Beyond the surface lies the other half of the Rosi journey. Glide over living coral gardens, explore historic wrecks, and meet the ocean face to face — guided by PADI-certified dive masters at every global hub.
+                    </p>
+
+                    <div class="diving-features">
+                        <div class="dive-feat glass-panel">
+                            <ion-icon name="ribbon-outline"></ion-icon>
+                            <div>
+                                <h4 data-i18n="diving.f1.title">PADI Courses</h4>
+                                <p data-i18n="diving.f1.desc">From Discover Scuba to Divemaster certification.</p>
+                            </div>
+                        </div>
+                        <div class="dive-feat glass-panel">
+                            <ion-icon name="fish-outline"></ion-icon>
+                            <div>
+                                <h4 data-i18n="diving.f2.title">Reef &amp; Wreck Dives</h4>
+                                <p data-i18n="diving.f2.desc">Guided day &amp; night dives at every coastline.</p>
+                            </div>
+                        </div>
+                        <div class="dive-feat glass-panel">
+                            <ion-icon name="pulse-outline"></ion-icon>
+                            <div>
+                                <h4 data-i18n="diving.f3.title">Freediving</h4>
+                                <p data-i18n="diving.f3.desc">Breath-hold coaching for the purists.</p>
+                            </div>
+                        </div>
+                        <div class="dive-feat glass-panel">
+                            <ion-icon name="shield-checkmark-outline"></ion-icon>
+                            <div>
+                                <h4 data-i18n="diving.f4.title">Safety First</h4>
+                                <p data-i18n="diving.f4.desc">Premium gear, dive computers &amp; insured operators.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="diving-ctas">
+                        <button class="btn btn-accent btn-lg" onclick="openBooking('diving')" data-i18n="diving.cta1">Book a Dive</button>
+                        <a href="#pillars" class="btn btn-outline btn-lg" data-i18n="diving.cta2">All Activities</a>
+                    </div>
+                </div>
+
+                <div class="diving-visual">
+                    <div class="diving-photo glass-panel">
+                        <img src="assets/maldives.png" alt="Coral reef diving" loading="lazy">
+                        <div class="diving-depth-badge">
+                            <ion-icon name="arrow-down-outline"></ion-icon>
+                            <span data-i18n="diving.depth">Reefs · Wrecks · 5–40m</span>
+                        </div>
+                    </div>
+                    <div class="diving-stat glass-panel">
+                        <div class="stat-num" data-count="40">0</div>
+                        <div class="stat-label" data-i18n="diving.stat">Dive Sites Worldwide</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Gear Shop, Gear Finder, 3D Product & AR Viewers -->
+        <section id="shop" class="section shop-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title gradient-text" data-i18n="shop.title">Rosi Ocean Gear</h2>
+                    <p class="section-subtitle" data-i18n="shop.subtitle">Equip yourself with premium gear tailored for each global coastline, or purchase limited-edition local souvenirs.</p>
+                </div>
+
+                <!-- Gear Finder Widget -->
+                <div class="gear-finder-widget glass-panel">
+                    <div class="gf-header">
+                        <div class="gf-icon"><ion-icon name="compass-outline"></ion-icon></div>
+                        <div class="gf-header-text">
+                            <h3 data-i18n="gf.title">Rosi Smart Gear Finder</h3>
+                            <p data-i18n="gf.desc">Answer three simple questions to find the ideal gear setup for your upcoming sea adventure.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step Indicators -->
+                    <div class="gf-steps">
+                        <div class="gf-step-dot active" data-step="1">1</div>
+                        <div class="gf-step-line"></div>
+                        <div class="gf-step-dot" data-step="2">2</div>
+                        <div class="gf-step-line"></div>
+                        <div class="gf-step-dot" data-step="3">3</div>
+                        <div class="gf-step-line"></div>
+                        <div class="gf-step-dot" data-step="4">🎁</div>
+                    </div>
+
+                    <!-- Question Container -->
+                    <div class="gf-body">
+                        <!-- Step 1: Destination -->
+                        <div class="gf-question-slide active" data-step="1">
+                            <h4 class="gf-question-title" data-i18n="gf.q1">Where are you planning to fish?</h4>
+                            <div class="gf-options-grid">
+                                <label class="gf-option-card">
+                                    <input type="radio" name="gf-dest" value="norway" checked>
+                                    <div class="gf-option-content">
+                                        <ion-icon name="snow-outline"></ion-icon>
+                                        <span class="label" data-i18n="dest.norway">Lofoten, Norway (Cold Sea)</span>
+                                    </div>
+                                </label>
+                                <label class="gf-option-card">
+                                    <input type="radio" name="gf-dest" value="maldives">
+                                    <div class="gf-option-content">
+                                        <ion-icon name="sunny-outline"></ion-icon>
+                                        <span class="label" data-i18n="dest.maldives">Maldives (Tropical Reefs)</span>
+                                    </div>
+                                </label>
+                                <label class="gf-option-card">
+                                    <input type="radio" name="gf-dest" value="amalfi">
+                                    <div class="gf-option-content">
+                                        <ion-icon name="boat-outline"></ion-icon>
+                                        <span class="label" data-i18n="dest.amalfi">Amalfi, Italy (Deep Blue)</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Target Catch -->
+                        <div class="gf-question-slide" data-step="2">
+                            <h4 class="gf-question-title" data-i18n="gf.q2">What is your main target category?</h4>
+                            <div class="gf-options-grid">
+                                <label class="gf-option-card">
+                                    <input type="radio" name="gf-target" value="giant" checked>
+                                    <div class="gf-option-content">
+                                        <ion-icon name="ribbon-outline"></ion-icon>
+                                        <span class="label" data-i18n="target.giant">Apex Monsters (Tuna, Cod)</span>
+                                    </div>
+                                </label>
+                                <label class="gf-option-card">
+                                    <input type="radio" name="gf-target" value="medium">
+                                    <div class="gf-option-content">
+                                        <ion-icon name="fish-outline"></ion-icon>
+                                        <span class="label" data-i18n="target.medium">Reef Game (Trevally, Snapper)</span>
+                                    </div>
+                                </label>
+                                <label class="gf-option-card">
+                                    <input type="radio" name="gf-target" value="light">
+                                    <div class="gf-option-content">
+                                        <ion-icon name="leaf-outline"></ion-icon>
+                                        <span class="label" data-i18n="target.light">Light Coastal (Squid, Seabass)</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Skill Level -->
+                        <div class="gf-question-slide" data-step="3">
+                            <h4 class="gf-question-title" data-i18n="gf.q3">What is your marine fishing experience?</h4>
+                            <div class="gf-options-grid">
+                                <label class="gf-option-card">
+                                    <input type="radio" name="gf-skill" value="beginner" checked>
+                                    <div class="gf-option-content">
+                                        <ion-icon name="sparkles-outline"></ion-icon>
+                                        <span class="label" data-i18n="skill.beginner">Beginner (First-timer)</span>
+                                    </div>
+                                </label>
+                                <label class="gf-option-card">
+                                    <input type="radio" name="gf-skill" value="intermediate">
+                                    <div class="gf-option-content">
+                                        <ion-icon name="construct-outline"></ion-icon>
+                                        <span class="label" data-i18n="skill.intermediate">Intermediate (Hooked)</span>
+                                    </div>
+                                </label>
+                                <label class="gf-option-card">
+                                    <input type="radio" name="gf-skill" value="expert">
+                                    <div class="gf-option-content">
+                                        <ion-icon name="trophy-outline"></ion-icon>
+                                        <span class="label" data-i18n="skill.expert">Expert (Sea Captain)</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Results (Recommended setups) -->
+                        <div class="gf-question-slide" data-step="4">
+                            <h4 class="gf-question-title" data-i18n="gf.results.title">Your Recommended Marine Package</h4>
+                            <div class="gf-recommendation-box" id="gf-recommendation-result">
+                                <!-- Recommended Setup details injected here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Controls -->
+                    <div class="gf-footer">
+                        <button class="btn btn-outline btn-sm" id="gf-prev" style="visibility: hidden;" data-i18n="gf.prev">Back</button>
+                        <button class="btn btn-accent btn-sm" id="gf-next" data-i18n="gf.next">Next Question</button>
+                    </div>
+                </div>
+
+                <!-- E-commerce Grid -->
+                <div class="shop-grid-wrapper">
+                    <div class="shop-filter-bar">
+                        <button class="filter-btn active" data-filter="all" data-i18n="shop.filter.all">All Gear</button>
+                        <button class="filter-btn" data-filter="rods" data-i18n="shop.filter.rods">Rods & Reels</button>
+                        <button class="filter-btn" data-filter="lures" data-i18n="shop.filter.lures">Pro Lures</button>
+                        <button class="filter-btn" data-filter="souvenirs" data-i18n="shop.filter.souvenirs">Souvenirs</button>
+                    </div>
+
+                    <div class="products-grid" id="products-container">
+                        <!-- Products are dynamically generated by shop.js -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Concierge VIP Charters (Flagship exclusive) -->
+        <section id="concierge" class="section concierge-section bg-sand">
+            <div class="container concierge-grid">
+                <div class="concierge-content">
+                    <span class="concierge-tag" data-i18n="concierge.tag">VIP SEA CONCIERGE</span>
+                    <h2 class="section-title gradient-text" data-i18n="concierge.title">Bespoke Yacht Journeys</h2>
+                    <p class="section-desc" data-i18n="concierge.desc">
+                        Our flagship private desk caters to voyagers seeking ultimate seclusion. From superyacht provisioning, custom helipads, underwater submersibles, to Michelin chef partnerships, we tailor all coordinates to your desire.
+                    </p>
+                    <div class="concierge-cards">
+                        <div class="c-card glass-panel">
+                            <ion-icon name="ribbon-sharp"></ion-icon>
+                            <h4 data-i18n="concierge.c1.title">Superyacht Access</h4>
+                            <p data-i18n="concierge.c1.desc">Charter multi-deck megayachts with helipads.</p>
+                        </div>
+                        <div class="c-card glass-panel">
+                            <ion-icon name="wine-sharp"></ion-icon>
+                            <h4 data-i18n="concierge.c2.title">Private Dining</h4>
+                            <p data-i18n="concierge.c2.desc">Bespoke menus by localized Michelin chefs.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Concierge Reservation Form -->
+                <div class="concierge-form-box glass-panel">
+                    <h3 data-i18n="concierge.form.title">Initiate VIP Briefing</h3>
+                    <form id="concierge-vip-form" onsubmit="submitVIPRequest(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="vip-name" data-i18n="booking.lbl.name">Full Name</label>
+                                <input type="text" id="vip-name" class="form-input" placeholder="Cap. John Smith" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="vip-email">Email</label>
+                                <input type="email" id="vip-email" class="form-input" placeholder="captain@yacht.com" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="vip-location" data-i18n="booking.lbl.hub">Coastline Hub</label>
+                            <select id="vip-location" class="form-select" required>
+                                <option value="amalfi">Amalfi Coast, Italy</option>
+                                <option value="norway">Lofoten, Norway</option>
+                                <option value="maldives">Maldives Archipelago</option>
+                                <option value="hawaii">Oahu, Hawaii</option>
+                                <option value="tokyo">Tokyo Bay, Japan</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="vip-requirements" data-i18n="concierge.lbl.req">Bespoke Requirements</label>
+                            <textarea id="vip-requirements" class="form-input" rows="3" placeholder="Superyacht helipad, onboard sommelier, deep-sea sub dive..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-accent btn-block" data-i18n="concierge.submit">Submit VIP Briefing</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. About Rosi Section -->
+        <section id="about" class="section about-section">
+            <div class="container about-grid">
+                <div class="about-images">
+                    <!-- Glass styled visual boards representing ocean lifestyle -->
+                    <div class="about-img-card card-large glass-panel">
+                        <img src="assets/norway.png" alt="Lofoten Norway" style="width:100%; height:250px; object-fit:cover;">
+                        <div class="card-caption">
+                            <strong data-i18n="about.img1.title">The Open Seas</strong>
+                            <p data-i18n="about.img1.desc">85 fleets operating globally.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="about-img-card card-small glass-panel">
+                        <img src="assets/amalfi.png" alt="Amalfi Coast Italy" style="width:100%; height:150px; object-fit:cover;">
+                        <div class="card-caption">
+                            <strong data-i18n="about.img2.title">Seaside Kitchens</strong>
+                            <p data-i18n="about.img2.desc">Freshness redefined.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="about-content">
+                    <span class="about-label" data-i18n="about.tag">OUR STORY</span>
+                    <h2 class="section-title gradient-text" data-i18n="about.title">Deep Ocean Lifestyle</h2>
+                    <p data-i18n="about.desc1">
+                        Rosi is not just a charter company or a tackle shop. We are a global community that lives for the swell, the thrill of the pull, and the taste of the fresh catch. 
+                    </p>
+                    <p data-i18n="about.desc2">
+                        Founded by marine conservationists and professional yachtsmen, Rosi partners with local fishing communities at 15 hubs worldwide to promote sustainable ocean recreation.
+                    </p>
+                    <div class="about-bullets">
+                        <div class="ab-item">
+                            <ion-icon name="shield-checkmark-outline"></ion-icon>
+                            <div>
+                                <h4 data-i18n="about.b1.title">100% Sustainable</h4>
+                                <p data-i18n="about.b1.desc">We adhere strictly to local seasonal limits.</p>
+                            </div>
+                        </div>
+                        <div class="ab-item">
+                            <ion-icon name="ribbon-outline"></ion-icon>
+                            <div>
+                                <h4 data-i18n="about.b2.title">Michelin Chefs</h4>
+                                <p data-i18n="about.b2.desc">World-class experts preparing your marine trophy.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <a href="#hero" class="logo" aria-label="ROSI home"><img src="assets/logo-light.png" alt="ROSI" class="logo-img"></a>
+                <p data-i18n="footer.desc">Global Ocean Experience & Sea-to-Table Lifestyle Brand. Since 2024.</p>
+                <div class="social-links">
+                    <a href="#" aria-label="Instagram"><ion-icon name="logo-instagram"></ion-icon></a>
+                    <a href="#" aria-label="Facebook"><ion-icon name="logo-facebook"></ion-icon></a>
+                    <a href="#" aria-label="YouTube"><ion-icon name="logo-youtube"></ion-icon></a>
+                </div>
+            </div>
+            
+            <div class="footer-links-col">
+                <h4 data-i18n="footer.links">Quick Links</h4>
+                <a href="#hero" data-i18n="nav.home">Home</a>
+                <a href="#locations" data-i18n="nav.locations">Locations</a>
+                <a href="#experiences" data-i18n="nav.experiences">Experiences</a>
+                <a href="#shop" data-i18n="nav.shop">Gear Shop</a>
+            </div>
+
+            <div class="footer-links-col">
+                <h4 data-i18n="footer.hubs">Global Hubs</h4>
+                <a href="#locations">Amalfi Coast, Italy</a>
+                <a href="#locations">Lofoten, Norway</a>
+                <a href="#locations">Maldives Archipelago</a>
+                <a href="#locations">Oahu, Hawaii</a>
+                <a href="#locations">Tokyo Bay, Japan</a>
+            </div>
+
+            <div class="footer-newsletter">
+                <h4 data-i18n="footer.newsletter">Join The Sea Log</h4>
+                <p data-i18n="footer.news.desc">Receive seasonal fishing forecasts and recipe releases.</p>
+                <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Subscribed to Sea Log!'); this.reset();">
+                    <input type="email" placeholder="ocean@lifestyle.com" aria-label="Newsletter Email" required>
+                    <button type="submit" class="btn btn-accent" aria-label="Subscribe"><ion-icon name="arrow-forward-outline"></ion-icon></button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="footer-bottom text-center">
+            <p>&copy; 2026 ROSI Ocean Lifestyle. All Rights Reserved. Co-crafted by Antigravity.</p>
+        </div>
+    </footer>
+
+    <!-- Sidebar Shopping Cart Drawer -->
+    <div class="side-drawer" id="cart-drawer-panel">
+        <div class="drawer-header">
+            <h3><ion-icon name="cart-outline"></ion-icon> <span data-i18n="cart.title">Your Gear Cart</span></h3>
+            <button class="close-drawer-btn" id="cart-close-btn" aria-label="Close Cart"><ion-icon name="close-outline"></ion-icon></button>
+        </div>
+        
+        <div class="drawer-body" id="cart-items-container">
+            <!-- Dynamic Cart Items injected here -->
+            <div class="cart-empty-state" data-i18n="cart.empty">
+                Your cart is empty. Explore our Gear Shop or run the Gear Finder!
+            </div>
+        </div>
+
+        <div class="drawer-footer" id="cart-footer" style="display: none;">
+            <div class="cart-summary-line">
+                <span data-i18n="cart.subtotal">Subtotal</span>
+                <strong id="cart-subtotal-price">€0.00</strong>
+            </div>
+            <button class="btn btn-accent btn-block btn-lg" onclick="checkoutCart()" data-i18n="cart.checkout">Checkout Shop Order</button>
+        </div>
+    </div>
+
+    <!-- Booking Modal / Drawer -->
+    <div class="side-drawer" id="booking-drawer-panel">
+        <div class="drawer-header">
+            <h3><ion-icon name="calendar-outline"></ion-icon> <span data-i18n="booking.title">Ocean Booking Desk</span></h3>
+            <button class="close-drawer-btn" id="booking-close-btn" aria-label="Close Booking"><ion-icon name="close-outline"></ion-icon></button>
+        </div>
+
+        <div class="drawer-body">
+            <form id="booking-wizard-form" onsubmit="submitBooking(event)">
+                <!-- Step 1: Booking Hub -->
+                <div class="booking-field">
+                    <label for="booking-location" data-i18n="booking.lbl.hub">Target Coastline Hub</label>
+                    <select id="booking-location" class="form-select" required>
+                        <option value="amalfi">Amalfi Coast, Italy</option>
+                        <option value="norway">Lofoten, Norway</option>
+                        <option value="maldives">Maldives Reefs</option>
+                        <option value="hawaii">Oahu, Hawaii</option>
+                        <option value="tokyo">Tokyo Bay, Japan</option>
+                    </select>
+                </div>
+
+                <!-- Step 2: Experience Pillar -->
+                <div class="booking-field">
+                    <label for="booking-experience" data-i18n="booking.lbl.pillar">Select Marine Pillar</label>
+                    <select id="booking-experience" class="form-select" required>
+                        <option value="boat" data-i18n="booking.opt.boat">Boats & Fishing Charter</option>
+                        <option value="dining" data-i18n="booking.opt.dine">Catch & Dine Experience</option>
+                        <option value="diving" data-i18n="booking.opt.diving">Scuba Diving & Freediving</option>
+                        <option value="water" data-i18n="booking.opt.water">Water Fun & Sports Package</option>
+                    </select>
+                </div>
+
+                <!-- Step 3: Date Picker -->
+                <div class="booking-field">
+                    <label for="booking-date" data-i18n="booking.lbl.date">Voyage Date</label>
+                    <input type="date" id="booking-date" class="form-input" required min="2026-06-23">
+                </div>
+
+                <!-- Step 4: Guest Counter -->
+                <div class="booking-field">
+                    <label for="booking-guests" data-i18n="booking.lbl.guests">Voyagers Count</label>
+                    <input type="number" id="booking-guests" class="form-input" min="1" max="12" value="2" required>
+                </div>
+
+                <div class="booking-field">
+                    <label for="booking-name" data-i18n="booking.lbl.name">Full Name</label>
+                    <input type="text" id="booking-name" class="form-input" placeholder="Cap. John Smith" required>
+                </div>
+
+                <div class="booking-price-preview glass-panel">
+                    <span data-i18n="booking.est.price">Estimated Total</span>
+                    <strong id="booking-total-price">€250.00</strong>
+                </div>
+
+                <button type="submit" class="btn btn-accent btn-block btn-lg" data-i18n="booking.confirm">Confirm Booking Reservation</button>
+            </form>
+            
+            <div id="booking-success-message" style="display: none;" class="glass-panel text-center">
+                <ion-icon name="checkmark-circle-outline" style="font-size: 4rem; color: var(--color-lagoon-teal);"></ion-icon>
+                <h4 data-i18n="booking.ok.title">Voyage Scheduled!</h4>
+                <p data-i18n="booking.ok.desc">Your ocean reservation code has been logged. Look out for the captain's briefing email.</p>
+                <button class="btn btn-outline btn-block mt-4" onclick="closeBookingDrawer()" data-i18n="booking.ok.close">Back to Site</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account & Loyalty Diary Drawer (Flagship exclusive) -->
+    <div class="side-drawer" id="account-drawer-panel">
+        <div class="drawer-header">
+            <h3><ion-icon name="person-circle-outline"></ion-icon> <span data-i18n="account.title">My Catches & Loyalty</span></h3>
+            <button class="close-drawer-btn" id="account-close-btn" aria-label="Close Account"><ion-icon name="close-outline"></ion-icon></button>
+        </div>
+
+        <div class="drawer-body">
+            <!-- Loyalty Profile Overview Card -->
+            <div class="loyalty-card glass-panel text-center">
+                <div class="avatar-icon"><ion-icon name="shield-checkmark"></ion-icon></div>
+                <h4>Captain Voyager</h4>
+                <div class="loyalty-tier" id="loyalty-tier-badge">Siren Silver Tier</div>
+                <div class="loyalty-points-container">
+                    <span data-i18n="loyalty.points">Loyalty Points:</span>
+                    <strong id="loyalty-points-value">350 pts</strong>
+                </div>
+            </div>
+
+            <!-- "My Catches" Log Form -->
+            <div class="catches-log-form-box glass-panel mt-4">
+                <h4 data-i18n="catches.log.title">Log A Sea Catch</h4>
+                <form id="catch-logger-form" onsubmit="logNewCatch(event)">
+                    <div class="form-group">
+                        <label for="catch-species" data-i18n="catches.lbl.species">Fish Species</label>
+                        <select id="catch-species" class="form-select" required>
+                            <option value="Bluefin Tuna">Bluefin Tuna</option>
+                            <option value="Arctic Cod">Arctic Cod</option>
+                            <option value="Giant Trevally">Giant Trevally</option>
+                            <option value="Mahi Mahi">Mahi Mahi</option>
+                            <option value="Coastal Seabass">Coastal Seabass</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="catch-weight" data-i18n="catches.lbl.weight">Weight (kg)</label>
+                            <input type="number" id="catch-weight" class="form-input" min="0.1" step="0.1" value="4.5" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="catch-location" data-i18n="booking.lbl.hub">Location Hub</label>
+                            <select id="catch-location" class="form-select" required>
+                                <option value="Amalfi Coast">Amalfi Coast</option>
+                                <option value="Lofoten">Lofoten</option>
+                                <option value="Maldives">Maldives</option>
+                                <option value="Oahu">Oahu</option>
+                                <option value="Tokyo Bay">Tokyo Bay</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-accent btn-sm btn-block" data-i18n="catches.btn.log">Log Catch (+50 pts)</button>
+                </form>
+            </div>
+
+            <!-- Logged Catches Feed -->
+            <div class="catches-feed-container mt-4">
+                <h4 data-i18n="catches.feed.title">My Caught Log</h4>
+                <div class="catches-list" id="catches-log-list">
+                    <!-- Dynamic Catch Logs injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3D Product Rotation Modal (Flagship exclusive) -->
+    <div class="modal" id="prod-3d-modal">
+        <div class="modal-content glass-panel">
+            <button class="close-modal-btn" onclick="close3DModal()"><ion-icon name="close-outline"></ion-icon></button>
+            <h3 class="modal-title text-center" id="prod-3d-title">3D Gear Rotator</h3>
+            
+            <div class="canvas-3d-wrapper">
+                <!-- Rotate canvas -->
+                <canvas id="prod-3d-canvas"></canvas>
+                <!-- Instructions -->
+                <div class="modal-3d-helper" data-i18n="prod3d.helper"><ion-icon name="move-outline"></ion-icon> Drag left/right to rotate product 360°</div>
+            </div>
+
+            <div class="modal-prod-info" id="prod-3d-details">
+                <strong id="prod-3d-name">Product Name</strong>
+                <p id="prod-3d-desc">Product Description details...</p>
+                <div class="prod-footer">
+                    <span class="prod-price" id="prod-3d-price">€0.00</span>
+                    <button class="btn btn-accent" id="prod-3d-add-btn">
+                        <ion-icon name="cart-outline"></ion-icon> <span data-i18n="cart.add">Add to Cart</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AR Preview Modal (Flagship exclusive) -->
+    <div class="modal" id="ar-preview-modal">
+        <div class="ar-modal-content glass-panel">
+            <button class="close-modal-btn" onclick="closeARModal()"><ion-icon name="close-outline"></ion-icon></button>
+            
+            <div class="ar-camera-view-sim">
+                <!-- Simulated Live camera feed scanning target -->
+                <div class="ar-scanner-line"></div>
+                <div class="ar-camera-reticle"></div>
+                <div class="ar-feed-noise"></div>
+                
+                <!-- Floating Draggable AR Souvenir Item -->
+                <div class="ar-floating-asset" id="ar-movable-asset">
+                    <div class="ar-asset-glow"></div>
+                    <ion-icon name="gift" id="ar-asset-icon"></ion-icon>
+                    <span class="ar-asset-label" id="ar-asset-label">Souvenir</span>
+                </div>
+
+                <div class="ar-hud-panel">
+                    <span class="ar-status-text"><span class="ar-bullet"></span> <span data-i18n="ar.status">AR Active: Anchoring Souvenir</span></span>
+                    <div class="ar-controls-row">
+                        <button class="ar-btn" onclick="rotateArAsset(-30)"><ion-icon name="refresh-outline"></ion-icon></button>
+                        <button class="ar-btn" onclick="scaleArAsset(1.1)"><ion-icon name="add-circle-outline"></ion-icon></button>
+                        <button class="ar-btn" onclick="scaleArAsset(0.9)"><ion-icon name="remove-circle-outline"></ion-icon></button>
+                        <button class="ar-btn ar-btn-capture" onclick="captureAR()"><ion-icon name="aperture-outline"></ion-icon></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Backdrop overlay -->
+    <div class="drawer-overlay" id="drawer-overlay"></div>
+
+    <!-- Javascript Modules -->
+    <script src="js/app.js"></script>
+    <script src="js/sound.js"></script>
+    <script src="js/animations.js"></script>
+    <script src="js/hero-waves.js"></script>
+    <script src="js/globe.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/shop.js"></script>
+    <script src="js/booking.js"></script>
+    <script src="js/account.js"></script>
+</body>
+</html>

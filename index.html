@@ -1,0 +1,1889 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Hanken+Grotesk:wght@300;400;500;600;700;800&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+<style>
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:'Hanken Grotesk',system-ui,sans-serif;background:#062029;color:#CFE6E2;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  h1,h2,h3,h4{margin:0;font-weight:400}
+  /* Playfair Display carries the Vietnamese glyphs Instrument Serif lacks; VI swaps the whole stack via --rosi-serif */
+  .serif{font-family:var(--rosi-serif,'Instrument Serif'),'Playfair Display',Georgia,serif;font-weight:400;letter-spacing:.005em}
+  .mono{font-family:'Spline Sans Mono',ui-monospace,monospace}
+  p{margin:0}
+  a{text-decoration:none;color:inherit}
+  ::selection{background:#E8623A;color:#fff}
+  ion-icon{pointer-events:none}
+  /* dark form controls: native select popups & date/number pickers were rendering white-on-white */
+  select,input,textarea{color-scheme:dark}
+  select option{background:#07242e;color:#F4EEDD}
+  @keyframes fadeUp{from{transform:translateY(28px)}to{transform:translateY(0)}}
+  @keyframes ping{0%{transform:scale(.2);opacity:.9}100%{transform:scale(1);opacity:0}}
+  @keyframes drift{to{background-position:600px 0}}
+  @keyframes pulseDot{0%,100%{box-shadow:0 0 0 0 rgba(232,98,58,.5)}70%{box-shadow:0 0 0 14px rgba(232,98,58,0)}}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+  @keyframes bubble{0%{transform:translateY(0);opacity:0}12%{opacity:.6}100%{transform:translateY(-240px);opacity:0}}
+  @keyframes eq{0%,100%{height:4px}50%{height:15px}}
+  @keyframes curtainUp{to{transform:translateY(-100%)}}
+  @keyframes scan{0%{top:8%}100%{top:92%}}
+  @keyframes boatFloat{0%,100%{transform:translateY(0) rotate(-2.4deg)}50%{transform:translateY(-13px) rotate(2deg)}}
+  @keyframes fadeUpB{from{transform:translateY(28px)}to{transform:translateY(0)}}
+  @keyframes swim{from{transform:translateX(calc(100vw + 90px))}to{transform:translateX(-90px)}}
+  @keyframes sunGlow{0%,100%{opacity:.82}50%{opacity:1}}
+  .rosi-nav-link{position:relative;transition:color .25s ease;white-space:nowrap}
+  .rosi-nav-link::after{content:"";position:absolute;left:12px;bottom:3px;width:0;height:2px;background:linear-gradient(90deg,#E8623A,#F0B33C);transition:width .32s cubic-bezier(.4,0,.2,1)}
+  .rosi-nav-link:hover,.rosi-nav-link:focus-visible,.rosi-nav-link[aria-current="true"]{color:#fff}
+  .rosi-nav-link:hover::after,.rosi-nav-link[aria-current="true"]::after{width:calc(100% - 24px)}
+  @media (max-width:720px){ .rosi-hero-boat{display:none!important} .rosi-hero-sun{display:none!important} }
+  @media (max-width:520px){ .rosi-audio-btn{display:none!important} .rosi-head-inner{padding:14px 16px!important;gap:14px!important} }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  *:focus-visible{outline:2px solid #E8623A;outline-offset:3px}
+  @media (max-width:920px){ .rosi-desktop-nav{display:none!important} .rosi-mobile-toggle{display:grid!important} .rosi-grid-2{grid-template-columns:1fr!important} .rosi-charter-btn{display:none!important} .rosi-hub-globe{display:none!important} }
+  @media (min-width:921px){ .rosi-mobile-toggle{display:none!important} .rosi-mobile-menu{display:none!important} }
+  @media (max-width:820px){ .rosi-grid-3{grid-template-columns:1fr 1fr!important} .rosi-grid-4{grid-template-columns:1fr 1fr!important} }
+  @media (max-width:520px){ .rosi-grid-3{grid-template-columns:1fr!important} .rosi-grid-4{grid-template-columns:1fr!important} }
+  @media (max-width:640px){ .rosi-gf-grid{grid-template-columns:1fr!important} .rosi-form-2{grid-template-columns:1fr!important} }
+  @media (max-width:460px){ .rosi-feat-2{grid-template-columns:1fr!important} }
+  @media (hover:none){ #rosi-cursor{display:none!important} }
+</style>
+</helmet>
+
+<div style="position:relative;--rosi-serif:{{ serifFont }}">
+
+<!-- signature: bathymetric cursor (crosshair + live sounding) -->
+<div id="rosi-cursor" aria-hidden="true" style="position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0;transition:opacity .3s">
+  <div id="rc-vline" style="position:absolute;top:0;bottom:0;width:1px;background:rgba(232,98,58,.35)"></div>
+  <div id="rc-hline" style="position:absolute;left:0;right:0;height:1px;background:rgba(232,98,58,.35)"></div>
+  <div id="rc-dot" style="position:absolute;width:10px;height:10px;border:1px solid #E8623A;border-radius:50%;transform:translate(-50%,-50%)"></div>
+  <div id="rc-read" class="mono" style="position:absolute;font-size:10px;letter-spacing:.08em;color:#F0B33C;background:rgba(4,18,24,.72);padding:3px 7px;border-radius:2px;white-space:nowrap;transform:translate(14px,14px)">00°00′N · −0M</div>
+</div>
+
+<!-- load curtain reveal -->
+<div id="rosi-curtain" style="position:fixed;inset:0;z-index:10000;background:#04161c;display:grid;place-items:center;pointer-events:none">
+  <div style="text-align:center">
+    <div class="serif" style="font-family:'Instrument Serif',Georgia,serif;font-size:52px;color:#fff;letter-spacing:.05em">Rosi</div>
+    <div class="mono" style="margin-top:8px;font-size:10px;letter-spacing:.4em;color:#3E8E86;text-transform:uppercase">Charting the water</div>
+  </div>
+</div>
+
+<!-- ============ HEADER ============ -->
+<header style="position:fixed;top:0;left:0;right:0;z-index:60;background:rgba(6,32,41,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(207,230,226,.12)">
+  <div class="rosi-head-inner" style="max-width:1320px;margin:0 auto;padding:16px 30px;display:flex;align-items:center;gap:26px">
+    <a href="#hero" aria-label="ROSI home" style="display:flex;align-items:baseline;gap:10px">
+      <span class="serif" style="font-family:'Instrument Serif',Georgia,serif;font-size:30px;letter-spacing:.04em;color:#fff;line-height:1">Rosi</span>
+      <span class="mono" style="font-size:10px;letter-spacing:.3em;color:#3E8E86;text-transform:uppercase">Ocean Co.</span>
+    </a>
+    <nav aria-label="Main navigation" class="rosi-desktop-nav" style="display:flex;gap:2px;margin-left:14px;flex:1">
+      <a href="#locations" class="mono rosi-nav-link" aria-current="{{ curHubs }}" style="padding:8px 12px;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:#9FBDB8;border-radius:3px">{{ t.navHubs }}</a>
+      <a href="#pillars" class="mono rosi-nav-link" aria-current="{{ curPillars }}" style="padding:8px 12px;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:#9FBDB8;border-radius:3px">{{ t.navChart }}</a>
+      <a href="#experiences" class="mono rosi-nav-link" aria-current="{{ curExp }}" style="padding:8px 12px;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:#9FBDB8;border-radius:3px">{{ t.navSea }}</a>
+      <a href="#diving" class="mono rosi-nav-link" aria-current="{{ curDive }}" style="padding:8px 12px;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:#9FBDB8;border-radius:3px">{{ t.navDive }}</a>
+      <a href="#shop" class="mono rosi-nav-link" aria-current="{{ curShop }}" style="padding:8px 12px;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:#9FBDB8;border-radius:3px">{{ t.navStores }}</a>
+      <a href="#about" class="mono rosi-nav-link" aria-current="{{ curAbout }}" style="padding:8px 12px;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:#9FBDB8;border-radius:3px">{{ t.navLog }}</a>
+    </nav>
+    <div class="rosi-desktop-nav" style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <!-- ambient audio -->
+      <button onClick="{{ toggleAudio }}" class="rosi-audio-btn" aria-label="Ambient sound" title="Ambient ocean" style="display:flex;align-items:center;gap:8px;background:none;border:1px solid rgba(207,230,226,.2);color:#CFE6E2;padding:0 12px;height:40px;border-radius:3px;cursor:pointer" style-hover="border-color:#3E8E86;color:#fff">
+        <ion-icon name="{{ audioIcon }}" style="font-size:17px"></ion-icon>
+        <span style="display:flex;align-items:flex-end;gap:2px;height:15px">
+          <span style="width:2px;background:#3E8E86;height:4px;animation:{{ eqAnim1 }}"></span>
+          <span style="width:2px;background:#3E8E86;height:4px;animation:{{ eqAnim2 }}"></span>
+          <span style="width:2px;background:#3E8E86;height:4px;animation:{{ eqAnim3 }}"></span>
+          <span style="width:2px;background:#3E8E86;height:4px;animation:{{ eqAnim4 }}"></span>
+        </span>
+      </button>
+      <!-- language listbox -->
+      <div style="position:relative">
+        <button onClick="{{ toggleLangMenu }}" class="mono" aria-haspopup="listbox" aria-expanded="{{ langExpanded }}" aria-label="Sprache wählen" style="display:flex;align-items:center;gap:6px;background:none;border:1px solid rgba(207,230,226,.2);color:#CFE6E2;padding:0 12px;height:40px;border-radius:3px;font-size:11px;letter-spacing:.12em;cursor:pointer" style-hover="border-color:#3E8E86;color:#fff">{{ lang }} <ion-icon name="chevron-down-outline" style="font-size:13px"></ion-icon></button>
+        <div role="listbox" style="position:absolute;top:48px;right:0;width:180px;background:#04161c;border:1px solid rgba(207,230,226,.16);border-radius:3px;padding:6px;opacity:{{ langMenuOpacity }};transform:translateY({{ langMenuY }});pointer-events:{{ langMenuEvents }};transition:opacity .22s,transform .22s;z-index:70">
+          <sc-for list="{{ langOptions }}" as="lg" hint-placeholder-count="6">
+            <button onClick="{{ lg.pick }}" role="option" aria-selected="{{ lg.selected }}" class="mono" style="display:flex;align-items:center;justify-content:space-between;width:100%;background:{{ lg.bg }};border:none;color:{{ lg.color }};padding:9px 11px;border-radius:2px;cursor:pointer;font-size:11px;letter-spacing:.08em" style-hover="background:rgba(232,98,58,.14)"><span style="font-weight:600">{{ lg.code }}</span><span style="color:#7FA39D">{{ lg.name }}</span></button>
+          </sc-for>
+        </div>
+      </div>
+      <button onClick="{{ openAccount }}" aria-label="Konto" style="display:grid;place-items:center;width:40px;height:40px;border-radius:3px;background:none;border:1px solid rgba(207,230,226,.2);color:#CFE6E2;cursor:pointer" style-hover="border-color:#3E8E86;color:#fff"><ion-icon name="navigate-outline" style="font-size:17px"></ion-icon></button>
+      <button onClick="{{ openCart }}" aria-label="Warenkorb" style="position:relative;display:grid;place-items:center;width:40px;height:40px;border-radius:3px;background:none;border:1px solid rgba(207,230,226,.2);color:#CFE6E2;cursor:pointer" style-hover="border-color:#3E8E86;color:#fff">
+        <ion-icon name="basket-outline" style="font-size:18px"></ion-icon>
+        <span class="mono" style="position:absolute;top:-7px;right:-7px;min-width:18px;height:18px;padding:0 4px;display:grid;place-items:center;border-radius:9px;background:#E8623A;color:#fff;font-size:10px;font-weight:600">{{ cartCount }}</span>
+      </button>
+      <button onClick="{{ openBooking }}" class="rosi-charter-btn" style="background:#E8623A;color:#fff;border:none;padding:12px 22px;border-radius:3px;font-size:13.5px;font-weight:600;letter-spacing:.02em;cursor:pointer;transition:transform .3s cubic-bezier(.25,.8,.25,1),background .3s" style-hover="transform:translateY(-2px);background:#f06f47">{{ t.charter }}</button>
+      <button onClick="{{ toggleMobileMenu }}" class="rosi-mobile-toggle" aria-label="Menu" style="display:none;place-items:center;width:40px;height:40px;border-radius:3px;background:none;border:1px solid rgba(207,230,226,.2);color:#fff;cursor:pointer"><ion-icon name="{{ mobileIcon }}" style="font-size:22px"></ion-icon></button>
+    </div>
+  </div>
+</header>
+
+<!-- mobile nav -->
+<div class="rosi-mobile-menu" style="position:fixed;top:73px;left:0;right:0;z-index:55;background:rgba(4,18,24,.97);backdrop-filter:blur(14px);border-bottom:1px solid rgba(207,230,226,.12);padding:14px 30px 22px;flex-direction:column;gap:2px;transform:translateY({{ mobileMenuY }});opacity:{{ mobileMenuOpacity }};pointer-events:{{ mobileMenuEvents }};transition:transform .32s cubic-bezier(.4,0,.2,1),opacity .32s;display:flex">
+  <a href="#locations" onClick="{{ closeMobileMenu }}" class="mono" style="padding:13px 4px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#CFE6E2;border-bottom:1px solid rgba(207,230,226,.07)">{{ t.navHubs }}</a>
+  <a href="#pillars" onClick="{{ closeMobileMenu }}" class="mono" style="padding:13px 4px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#CFE6E2;border-bottom:1px solid rgba(207,230,226,.07)">{{ t.navChart }}</a>
+  <a href="#experiences" onClick="{{ closeMobileMenu }}" class="mono" style="padding:13px 4px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#CFE6E2;border-bottom:1px solid rgba(207,230,226,.07)">{{ t.navSea }}</a>
+  <a href="#diving" onClick="{{ closeMobileMenu }}" class="mono" style="padding:13px 4px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#CFE6E2;border-bottom:1px solid rgba(207,230,226,.07)">{{ t.navDive }}</a>
+  <a href="#shop" onClick="{{ closeMobileMenu }}" class="mono" style="padding:13px 4px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#CFE6E2;border-bottom:1px solid rgba(207,230,226,.07)">{{ t.navStores }}</a>
+  <a href="#about" onClick="{{ closeMobileMenu }}" class="mono" style="padding:13px 4px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#CFE6E2;border-bottom:1px solid rgba(207,230,226,.07)">{{ t.navLog }}</a>
+  <button onClick="{{ openBookingMobile }}" style="margin-top:16px;background:#E8623A;color:#fff;border:none;padding:14px;border-radius:3px;font-size:14px;font-weight:600;cursor:pointer">{{ t.charter }}</button>
+</div>
+
+<!-- ============ HERO ============ -->
+<section id="hero" data-screen-label="Hero" style="position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;background:radial-gradient(130% 100% at 78% 8%,#0c4350 0%,#083541 38%,#051a22 100%)">
+  <!-- setting sun behind the boat -->
+  <div aria-hidden="true" class="rosi-hero-sun" style="position:absolute;z-index:0;left:78%;top:34%;transform:translate(-50%,-50%);width:min(11.5vw,150px);aspect-ratio:1;border-radius:50%;background:#EE7A38;box-shadow:0 0 80px 26px rgba(238,122,56,.22);animation:sunGlow 7s ease-in-out infinite;pointer-events:none"></div>
+  <canvas id="rosi-sonar" style="position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none"></canvas>
+  <div style="position:absolute;inset:0;z-index:2;background:linear-gradient(180deg,rgba(5,26,34,.15) 0%,rgba(5,26,34,.05) 45%,rgba(5,26,34,.78) 100%);pointer-events:none"></div>
+  <div class="rosi-hero-copy" style="position:relative;z-index:3;max-width:1320px;margin:0 auto;padding:130px 30px 170px;width:100%">
+    <div style="max-width:880px;animation:fadeUp 1s ease-out both">
+      <div class="mono" style="display:flex;align-items:center;gap:14px;font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:#E8623A">
+        <span style="width:34px;height:1px;background:#E8623A"></span>{{ t.heroKicker }}
+      </div>
+      <h1 class="serif" style="margin:30px 0 0;font-size:clamp(3.2rem,9vw,7.4rem);line-height:.96;color:#F4EEDD">
+        {{ t.heroT1 }}<br>{{ t.heroT2a }}<span style="font-style:italic;color:#E8623A">{{ t.heroT2b }}</span>{{ t.heroT2c }}
+      </h1>
+      <p style="margin:30px 0 0;font-size:clamp(1.05rem,1.5vw,1.3rem);line-height:1.6;color:#A9C8C3;max-width:560px;font-weight:300">{{ t.heroSub }}</p>
+      <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:38px">
+        <a href="#locations" style="display:inline-flex;align-items:center;gap:9px;background:#E8623A;color:#fff;padding:16px 30px;border-radius:3px;font-size:15px;font-weight:600;transition:transform .3s cubic-bezier(.25,.8,.25,1),background .3s" style-hover="transform:translateY(-3px);background:#f06f47">{{ t.heroCta1 }} <ion-icon name="arrow-forward-outline"></ion-icon></a>
+        <a href="#experiences" style="display:inline-flex;align-items:center;gap:9px;background:none;color:#fff;padding:16px 30px;border-radius:3px;font-size:15px;font-weight:500;border:1px solid rgba(207,230,226,.28)" style-hover="border-color:#fff;background:rgba(255,255,255,.05)">{{ t.heroCta2 }}</a>
+      </div>
+    </div>
+  </div>
+  <!-- soundings strip -->
+  <div style="position:absolute;left:0;right:0;bottom:0;z-index:3;border-top:1px solid rgba(207,230,226,.14);background:rgba(5,24,31,.5);backdrop-filter:blur(10px)">
+    <div style="max-width:1320px;margin:0 auto;padding:18px 30px;display:flex;gap:0;align-items:stretch;flex-wrap:wrap">
+      <div style="flex:1;min-width:150px;padding:6px 24px 6px 0;border-right:1px solid rgba(207,230,226,.12)"><div class="serif" data-count="12" style="font-size:40px;color:#E8623A;line-height:1">12</div><div class="mono" style="font-size:11px;letter-spacing:.18em;color:#7FA39D;text-transform:uppercase;margin-top:4px">{{ t.stat1 }}</div></div>
+      <div style="flex:1;min-width:150px;padding:6px 24px;border-right:1px solid rgba(207,230,226,.12)"><div class="serif" data-count="85" style="font-size:40px;color:#E8623A;line-height:1">85</div><div class="mono" style="font-size:11px;letter-spacing:.18em;color:#7FA39D;text-transform:uppercase;margin-top:4px">{{ t.stat2 }}</div></div>
+      <div style="flex:1;min-width:150px;padding:6px 24px;border-right:1px solid rgba(207,230,226,.12)"><div class="serif" data-count="40" style="font-size:40px;color:#E8623A;line-height:1">40</div><div class="mono" style="font-size:11px;letter-spacing:.18em;color:#7FA39D;text-transform:uppercase;margin-top:4px">{{ t.stat3 }}</div></div>
+      <div style="flex:1;min-width:150px;padding:6px 0 6px 24px"><div class="serif" data-count="12" data-suffix="K" style="font-size:40px;color:#E8623A;line-height:1">12K</div><div class="mono" style="font-size:11px;letter-spacing:.18em;color:#7FA39D;text-transform:uppercase;margin-top:4px">{{ t.stat4 }}</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LOCATIONS (immersive chart slider) ============ -->
+<section id="locations" data-screen-label="Locations" style="position:relative;min-height:100vh;background:#062029;overflow:hidden;display:flex;align-items:center">
+  <!-- crossfading hub scenes -->
+  <sc-for list="{{ hubScenes }}" as="hs" hint-placeholder-count="3">
+    <div aria-hidden="true" style="position:absolute;inset:0;background:{{ hs.scene }};opacity:{{ hs.op }};transition:opacity .9s ease"></div>
+  </sc-for>
+  <div aria-hidden="true" style="position:absolute;inset:0;background-image:radial-gradient(circle at 84% 18%,transparent 0 170px,rgba(63,142,134,.12) 170px 171.5px,transparent 172.5px),radial-gradient(circle at 84% 18%,transparent 0 340px,rgba(63,142,134,.07) 340px 341.5px,transparent 342.5px)"></div>
+  <div aria-hidden="true" style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,18,24,.9) 0%,rgba(4,18,24,.6) 38%,rgba(4,18,24,.2) 68%,rgba(4,18,24,.5) 100%)"></div>
+  <span class="mono" style="position:absolute;top:94px;right:30px;z-index:2;font-size:10px;letter-spacing:.1em;color:rgba(207,230,226,.45);background:rgba(4,18,24,.4);padding:5px 9px;border-radius:2px">PHOTO: {{ selLoc.shot }}</span>
+  <div style="position:relative;z-index:2;max-width:1440px;margin:0 auto;padding:120px 30px 80px;width:100%">
+    <div class="rosi-grid-2" style="display:grid;grid-template-columns:minmax(340px,1fr) auto;gap:44px;align-items:center">
+      <!-- left: current hub -->
+      <div>
+        <div class="mono" style="display:flex;align-items:center;gap:14px;font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:#E8623A"><span style="width:34px;height:1px;background:#E8623A"></span>{{ t.locKicker }}</div>
+        <div style="animation:{{ hubTitleAnim }}">
+          <div class="mono" style="margin-top:30px;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#9FBDB8;display:flex;align-items:center;gap:10px"><ion-icon name="location-outline" style="color:#F0B33C"></ion-icon>{{ selLoc.country }} · {{ selLoc.coord }}</div>
+          <h2 class="serif" style="margin-top:14px;font-size:clamp(3rem,6.5vw,5.8rem);line-height:.98;color:#F4EEDD">{{ selLoc.name }}</h2>
+          <p style="margin-top:18px;font-size:clamp(1rem,1.3vw,1.15rem);line-height:1.6;color:#CFE6E2;max-width:520px;font-weight:300">{{ selLoc.desc }}</p>
+          <div style="display:flex;gap:7px;margin-top:20px;flex-wrap:wrap">
+            <span class="mono" style="font-size:10px;letter-spacing:.1em;color:#CFE6E2;border:1px solid rgba(207,230,226,.26);padding:6px 10px;border-radius:3px;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px"><ion-icon name="boat-outline"></ion-icon> {{ t.badgeBoats }}</span>
+            <span class="mono" style="font-size:10px;letter-spacing:.1em;color:#CFE6E2;border:1px solid rgba(207,230,226,.26);padding:6px 10px;border-radius:3px;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px"><ion-icon name="restaurant-outline"></ion-icon> {{ t.badgeDine }}</span>
+            <span class="mono" style="font-size:10px;letter-spacing:.1em;color:#CFE6E2;border:1px solid rgba(207,230,226,.26);padding:6px 10px;border-radius:3px;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px"><ion-icon name="water-outline"></ion-icon> {{ t.badgeDive }}</span>
+          </div>
+          <div class="mono" style="display:flex;align-items:center;gap:8px;font-size:11.5px;color:#F0B33C;margin-top:18px"><span style="width:7px;height:7px;border-radius:50%;background:#F0B33C;animation:pulseDot 2.2s infinite"></span>{{ openTodayLabel }}</div>
+          <!-- live sea conditions instrument strip -->
+          <div class="mono" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px">
+            <span style="display:inline-flex;align-items:center;gap:7px;font-size:10.5px;letter-spacing:.1em;color:#CFE6E2;background:rgba(4,18,24,.5);border:1px solid rgba(207,230,226,.16);padding:7px 11px;border-radius:3px"><ion-icon name="thermometer-outline" style="font-size:13px;color:#F0B33C"></ion-icon>SEA {{ selLoc.temp }}°C</span>
+            <span style="display:inline-flex;align-items:center;gap:7px;font-size:10.5px;letter-spacing:.1em;color:#CFE6E2;background:rgba(4,18,24,.5);border:1px solid rgba(207,230,226,.16);padding:7px 11px;border-radius:3px"><ion-icon name="flag-outline" style="font-size:13px;color:#F0B33C"></ion-icon>WIND {{ selLoc.wind }}</span>
+            <span style="display:inline-flex;align-items:center;gap:7px;font-size:10.5px;letter-spacing:.1em;color:#CFE6E2;background:rgba(4,18,24,.5);border:1px solid rgba(207,230,226,.16);padding:7px 11px;border-radius:3px"><ion-icon name="swap-vertical-outline" style="font-size:13px;color:#F0B33C"></ion-icon>TIDE {{ selLoc.tide }}</span>
+            <span style="display:inline-flex;align-items:center;gap:7px;font-size:10.5px;letter-spacing:.1em;color:#CFE6E2;background:rgba(4,18,24,.5);border:1px solid rgba(207,230,226,.16);padding:7px 11px;border-radius:3px"><ion-icon name="eye-outline" style="font-size:13px;color:#F0B33C"></ion-icon>VIS {{ selLoc.vis }}M</span>
+          </div>
+          <div style="display:flex;gap:14px;margin-top:26px;flex-wrap:wrap">
+            <button onClick="{{ bookSelected }}" style="display:inline-flex;align-items:center;gap:9px;background:#E8623A;color:#fff;border:none;padding:15px 28px;border-radius:3px;font-size:14.5px;font-weight:600;cursor:pointer;transition:transform .3s cubic-bezier(.25,.8,.25,1),background .3s" style-hover="transform:translateY(-3px);background:#f06f47">{{ bookHubLabel }} <ion-icon name="arrow-forward-outline"></ion-icon></button>
+          </div>
+        </div>
+      </div>
+      <!-- right: globe instrument -->
+      <div class="rosi-hub-globe" style="width:min(42vw,500px)">
+        <div style="position:relative;aspect-ratio:1;border:1px solid rgba(207,230,226,.18);border-radius:50%;background:radial-gradient(90% 90% at 50% 35%,rgba(10,62,73,.55),rgba(4,22,28,.72));backdrop-filter:blur(6px);overflow:hidden">
+          <canvas id="rosi-globe" style="position:absolute;inset:0;width:100%;height:100%;cursor:grab;touch-action:none"></canvas>
+        </div>
+        <div class="mono" style="margin-top:14px;display:flex;justify-content:center;align-items:center;gap:8px;font-size:10.5px;letter-spacing:.16em;color:#9FBDB8;text-transform:uppercase"><ion-icon name="move-outline"></ion-icon> {{ t.dragHint }}</div>
+      </div>
+    </div>
+    <!-- hub card rail -->
+    <div style="margin-top:38px;overflow:hidden;padding:20px 0">
+      <div style="display:flex;gap:16px;align-items:center;justify-content:center">
+        <sc-for list="{{ hubCards }}" as="hc" hint-placeholder-count="5">
+          <button onClick="{{ hc.pick }}" style="position:relative;flex:none;width:190px;height:245px;border-radius:5px;overflow:hidden;border:1px solid {{ hc.border }};background:{{ hc.scene }};cursor:pointer;padding:0;text-align:left;transition:transform .5s cubic-bezier(.22,1,.36,1),border-color .35s,opacity .35s;opacity:{{ hc.dim }};transform:scale({{ hc.scale }})" style-hover="transform:translateY(-6px) scale({{ hc.scale }});opacity:1">
+            <span aria-hidden="true" style="position:absolute;inset:0;background-image:repeating-linear-gradient(52deg,rgba(255,255,255,.045) 0 14px,transparent 14px 28px)"></span>
+            <span class="mono" style="position:absolute;top:10px;left:10px;font-size:9px;letter-spacing:.08em;color:rgba(255,255,255,.55);background:rgba(4,18,24,.5);padding:3px 6px;border-radius:2px">{{ hc.shot }}</span>
+            <span style="position:absolute;left:0;right:0;bottom:0;padding:36px 14px 14px;background:linear-gradient(transparent,rgba(4,18,24,.9));display:flex;flex-direction:column;gap:3px">
+              <span class="mono" style="font-size:10px;letter-spacing:.18em;color:#F0B33C;text-transform:uppercase">{{ hc.country }}</span>
+              <span class="serif" style="font-size:20px;color:#fff;line-height:1.05">{{ hc.name }}</span>
+            </span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+    <!-- controls -->
+    <div style="display:flex;align-items:center;gap:28px;margin-top:34px">
+      <div style="display:flex;gap:10px">
+        <button onClick="{{ locPrev }}" aria-label="Previous hub" style="display:grid;place-items:center;width:54px;height:54px;border-radius:50%;background:rgba(4,18,24,.5);border:1px solid rgba(207,230,226,.28);color:#fff;cursor:pointer;backdrop-filter:blur(8px);transition:border-color .25s,background .25s,transform .25s" style-hover="border-color:#E8623A;background:rgba(232,98,58,.2);transform:translateY(-2px)"><ion-icon name="arrow-back-outline" style="font-size:20px"></ion-icon></button>
+        <button onClick="{{ locNext }}" aria-label="Next hub" style="display:grid;place-items:center;width:54px;height:54px;border-radius:50%;background:rgba(4,18,24,.5);border:1px solid rgba(207,230,226,.28);color:#fff;cursor:pointer;backdrop-filter:blur(8px);transition:border-color .25s,background .25s,transform .25s" style-hover="border-color:#E8623A;background:rgba(232,98,58,.2);transform:translateY(-2px)"><ion-icon name="arrow-forward-outline" style="font-size:20px"></ion-icon></button>
+      </div>
+      <div style="flex:1;height:2px;background:rgba(207,230,226,.16);border-radius:1px;position:relative"><div style="position:absolute;left:0;top:0;bottom:0;width:{{ hubProgress }};background:linear-gradient(90deg,#E8623A,#F0B33C);border-radius:1px;transition:width .6s cubic-bezier(.22,1,.36,1)"></div></div>
+      <div class="serif" style="font-size:clamp(40px,4.5vw,64px);color:#fff;line-height:1">{{ locIdx }}</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PILLARS (light chart key) ============ -->
+<section id="pillars" data-screen-label="Pillars" style="position:relative;padding:120px 30px;background:#ECE3D0;color:#0A1A1F;background-image:radial-gradient(circle at 8% 10%,transparent 0 240px,rgba(10,26,31,.09) 240px 241.5px,transparent 242.5px)">
+  <div style="max-width:1320px;margin:0 auto">
+    <div data-reveal style="display:flex;justify-content:space-between;align-items:flex-end;gap:30px;flex-wrap:wrap;margin-bottom:54px">
+      <div style="max-width:680px">
+        <div class="mono" style="display:flex;align-items:center;gap:14px;font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:#C24A24"><span style="width:34px;height:1px;background:#C24A24"></span>{{ t.pillKicker }}</div>
+        <h2 class="serif" style="margin-top:22px;font-size:clamp(2.4rem,5vw,4rem);line-height:1;color:#0A1A1F">{{ t.pillT1 }}<br>{{ t.pillT2a }}<span style="font-style:italic;color:#C24A24">{{ t.pillT2b }}</span>{{ t.pillT2c }}</h2>
+      </div>
+      <p style="max-width:300px;font-size:15px;line-height:1.6;color:#4F5F57">{{ t.pillSub }}</p>
+    </div>
+    <div class="rosi-grid-3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid rgba(10,26,31,.16);border-left:1px solid rgba(10,26,31,.16)" data-stagger>
+      <sc-for list="{{ pillars }}" as="pl" hint-placeholder-count="6">
+        <article style="position:relative;overflow:hidden;padding:34px 30px 30px;border-right:1px solid rgba(10,26,31,.16);border-bottom:1px solid rgba(10,26,31,.16);min-height:280px;display:flex;flex-direction:column;transition:background .3s,box-shadow .3s" style-hover="background:rgba(232,98,58,.06);box-shadow:inset 3px 0 0 #C24A24">
+          <span aria-hidden="true" class="serif" style="position:absolute;right:6px;bottom:-30px;font-size:130px;line-height:1;color:rgba(10,26,31,.055);pointer-events:none;user-select:none">{{ pl.num }}</span>
+          <div style="position:relative;display:flex;align-items:center;justify-content:space-between">
+            <span class="mono" style="font-size:11px;letter-spacing:.16em;color:#C24A24">{{ pl.key }}</span>
+            <sc-if value="{{ pl.isNew }}" hint-placeholder-val="{{ false }}"><span class="mono" style="font-size:10px;letter-spacing:.14em;background:#E8623A;color:#fff;padding:3px 8px;border-radius:2px">{{ t.pillNew }}</span></sc-if>
+          </div>
+          <ion-icon name="{{ pl.icon }}" style="font-size:38px;color:#0A1A1F;margin-top:24px"></ion-icon>
+          <h3 class="serif" style="margin-top:16px;font-size:25px;line-height:1.05;color:#0A1A1F">{{ pl.title }}</h3>
+          <p style="margin-top:10px;font-size:14px;color:#4F5F57;line-height:1.55;flex:1">{{ pl.desc }}</p>
+          <a href="{{ pl.href }}" class="mono" style="margin-top:18px;display:inline-flex;align-items:center;gap:7px;color:#C24A24;font-size:12px;letter-spacing:.14em;text-transform:uppercase" style-hover="gap:12px">{{ t.pillExplore }} <ion-icon name="arrow-forward-outline"></ion-icon></a>
+        </article>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CATCH & DINE (deep) ============ -->
+<section id="experiences" data-screen-label="Catch and Dine" style="position:relative;padding:120px 30px;background:#062029;background-image:radial-gradient(circle at 92% 85%,transparent 0 280px,rgba(63,142,134,.12) 280px 281.5px,transparent 282.5px)">
+  <div style="max-width:1320px;margin:0 auto">
+    <div data-reveal style="max-width:780px;margin:0 0 56px">
+      <div class="mono" style="display:flex;align-items:center;gap:14px;font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:#E8623A"><span style="width:34px;height:1px;background:#E8623A"></span>{{ t.expKicker }}</div>
+      <h2 class="serif" style="margin-top:22px;font-size:clamp(2.4rem,5vw,4rem);line-height:1;color:#F4EEDD">{{ t.expT1 }}<br>{{ t.expT2a }}<span style="font-style:italic;color:#3E8E86">{{ t.expT2b }}</span>{{ t.expT2c }}</h2>
+    </div>
+    <div class="rosi-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:start" data-reveal>
+      <!-- visual panel -->
+      <div style="position:sticky;top:100px;background:radial-gradient(85% 85% at 50% 25%,#0a3e49,#04161c);border:1px solid rgba(207,230,226,.14);border-radius:4px;height:440px;display:grid;place-items:center;overflow:hidden">
+        <div style="position:absolute;inset:0;background-image:radial-gradient(circle at 50% 50%,transparent 0 90px,rgba(63,142,134,.16) 90px 91.5px,transparent 92.5px),radial-gradient(circle at 50% 50%,transparent 0 170px,rgba(63,142,134,.09) 170px 171.5px,transparent 172.5px)"></div>
+        <sc-if value="{{ isStep1 }}" hint-placeholder-val="{{ true }}">
+          <div style="position:relative;text-align:center"><ion-icon name="boat" style="font-size:128px;color:#3E8E86;animation:bob 3.6s ease-in-out infinite"></ion-icon><div class="mono" style="margin-top:18px;font-size:12px;letter-spacing:.18em;color:#fff;text-transform:uppercase">{{ t.stepCap1 }}</div></div>
+        </sc-if>
+        <sc-if value="{{ isStep2 }}" hint-placeholder-val="{{ false }}">
+          <div style="position:relative;text-align:center;width:78%">
+            <ion-icon name="{{ reelIcon }}" style="font-size:100px;color:{{ reelFishCol }};animation:bob {{ reelBobSpeed }} ease-in-out infinite"></ion-icon>
+            <div class="mono" style="margin:22px 0 10px;font-size:12px;letter-spacing:.18em;color:#fff;text-transform:uppercase">{{ reelMsg }}</div>
+            <div style="height:8px;border-radius:2px;background:rgba(207,230,226,.14);overflow:hidden"><div style="height:100%;width:{{ reelPct }}%;background:{{ reelBarCol }};transition:width .3s,background .3s"></div></div>
+            <button onClick="{{ reel }}" style="margin-top:18px;background:{{ reelBtnBg }};color:#fff;border:none;padding:11px 22px;border-radius:3px;font-weight:600;cursor:pointer;font-size:13.5px" style-hover="background:#f06f47"><ion-icon name="sync-outline"></ion-icon> {{ reelBtnLabel }}</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isStep3 }}" hint-placeholder-val="{{ false }}">
+          <div style="position:relative;text-align:center"><ion-icon name="restaurant" style="font-size:112px;color:#3E8E86"></ion-icon><div class="mono" style="margin-top:18px;font-size:12px;letter-spacing:.18em;color:#fff;text-transform:uppercase">03 · {{ diningTitle }}</div><p style="margin-top:10px;font-size:13px;color:#A9C8C3;max-width:320px;font-weight:300">{{ diningDetail }}</p></div>
+        </sc-if>
+      </div>
+      <!-- steps -->
+      <div style="display:flex;flex-direction:column">
+        <button onClick="{{ goStep1 }}" style="text-align:left;background:{{ step1Bg }};border:none;border-left:2px solid {{ step1Border }};padding:26px 26px 26px 24px;cursor:pointer;color:#CFE6E2;transition:background .3s,border-color .3s">
+          <div class="mono" style="font-size:13px;letter-spacing:.2em;color:#3E8E86">{{ t.sounding }} 01</div>
+          <h3 class="serif" style="margin-top:8px;font-size:24px;color:#fff">{{ t.step1T }}</h3>
+          <p style="margin-top:8px;font-size:14px;color:#A9C8C3;line-height:1.55;font-weight:300">{{ t.step1D }}</p>
+        </button>
+        <button onClick="{{ goStep2 }}" style="text-align:left;background:{{ step2Bg }};border:none;border-left:2px solid {{ step2Border }};padding:26px 26px 26px 24px;cursor:pointer;color:#CFE6E2;transition:background .3s,border-color .3s">
+          <div class="mono" style="font-size:13px;letter-spacing:.2em;color:#3E8E86">{{ t.sounding }} 02</div>
+          <h3 class="serif" style="margin-top:8px;font-size:24px;color:#fff">{{ t.step2T }}</h3>
+          <p style="margin-top:8px;font-size:14px;color:#A9C8C3;line-height:1.55;font-weight:300">{{ t.step2D }}</p>
+        </button>
+        <button onClick="{{ goStep3 }}" style="text-align:left;background:{{ step3Bg }};border:none;border-left:2px solid {{ step3Border }};padding:26px 26px 26px 24px;cursor:pointer;color:#CFE6E2;transition:background .3s,border-color .3s">
+          <div class="mono" style="font-size:13px;letter-spacing:.2em;color:#3E8E86">{{ t.sounding }} 03</div>
+          <h3 class="serif" style="margin-top:8px;font-size:24px;color:#fff">{{ t.step3T }}</h3>
+          <p style="margin-top:8px;font-size:14px;color:#A9C8C3;line-height:1.55;font-weight:300">{{ t.step3D }}</p>
+          <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
+            <span onClick="{{ pickSell }}" class="mono" style="flex:1;min-width:92px;text-align:center;padding:13px 8px;border-radius:3px;background:{{ sellBg }};border:1px solid rgba(207,230,226,.14);font-size:11px;letter-spacing:.08em;text-transform:uppercase"><ion-icon name="cash-outline" style="display:block;margin:0 auto 5px;font-size:19px;color:#3E8E86"></ion-icon>{{ t.optSell }}</span>
+            <span onClick="{{ pickCook }}" class="mono" style="flex:1;min-width:92px;text-align:center;padding:13px 8px;border-radius:3px;background:{{ cookBg }};border:1px solid rgba(207,230,226,.14);font-size:11px;letter-spacing:.08em;text-transform:uppercase"><ion-icon name="flame-outline" style="display:block;margin:0 auto 5px;font-size:19px;color:#3E8E86"></ion-icon>{{ t.optCook }}</span>
+            <span onClick="{{ pickChef }}" class="mono" style="flex:1;min-width:92px;text-align:center;padding:13px 8px;border-radius:3px;background:{{ chefBg }};border:1px solid rgba(207,230,226,.14);font-size:11px;letter-spacing:.08em;text-transform:uppercase"><ion-icon name="star-outline" style="display:block;margin:0 auto 5px;font-size:19px;color:#3E8E86"></ion-icon>{{ t.optChef }}</span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DIVING (deepest / abyss) ============ -->
+<section id="diving" data-screen-label="Diving" style="position:relative;padding:120px 30px;background:linear-gradient(180deg,#04161c 0%,#063844 60%,#0a525a 100%);overflow:hidden">
+  <div style="position:absolute;inset:0;pointer-events:none" id="bubble-field"></div>
+  <div class="mono" style="position:absolute;top:30px;right:30px;font-size:11px;letter-spacing:.2em;color:rgba(207,230,226,.4);text-transform:uppercase">↓ deepest point · −40m</div>
+  <div class="rosi-grid-2" style="position:relative;max-width:1320px;margin:0 auto;display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center" data-reveal>
+    <div>
+      <div class="mono" style="display:flex;align-items:center;gap:14px;font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:#F0B33C"><span style="width:34px;height:1px;background:#F0B33C"></span>{{ t.divKicker }}</div>
+      <h2 class="serif" style="margin-top:22px;font-size:clamp(2.4rem,5vw,4rem);line-height:1;color:#F4EEDD">{{ t.divT1 }}<br>{{ t.divT2a }}<span style="font-style:italic;color:#F0B33C">{{ t.divT2b }}</span>{{ t.divT2c }}</h2>
+      <p style="margin-top:18px;font-size:1.05rem;color:#C5E0DC;line-height:1.65;max-width:520px;font-weight:300">{{ t.divSub }}</p>
+      <div class="rosi-feat-2" style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:30px;border-top:1px solid rgba(207,230,226,.16);border-left:1px solid rgba(207,230,226,.16)">
+        <div style="display:flex;gap:13px;padding:18px;border-right:1px solid rgba(207,230,226,.16);border-bottom:1px solid rgba(207,230,226,.16)"><ion-icon name="ribbon-outline" style="font-size:24px;color:#F0B33C;flex:none"></ion-icon><div><h4 style="font-size:15px;font-weight:600;color:#fff">{{ t.divF1T }}</h4><p style="font-size:12.5px;color:#A9C8C3;margin-top:3px;font-weight:300">{{ t.divF1D }}</p></div></div>
+        <div style="display:flex;gap:13px;padding:18px;border-right:1px solid rgba(207,230,226,.16);border-bottom:1px solid rgba(207,230,226,.16)"><ion-icon name="fish-outline" style="font-size:24px;color:#F0B33C;flex:none"></ion-icon><div><h4 style="font-size:15px;font-weight:600;color:#fff">{{ t.divF2T }}</h4><p style="font-size:12.5px;color:#A9C8C3;margin-top:3px;font-weight:300">{{ t.divF2D }}</p></div></div>
+        <div style="display:flex;gap:13px;padding:18px;border-right:1px solid rgba(207,230,226,.16);border-bottom:1px solid rgba(207,230,226,.16)"><ion-icon name="pulse-outline" style="font-size:24px;color:#F0B33C;flex:none"></ion-icon><div><h4 style="font-size:15px;font-weight:600;color:#fff">{{ t.divF3T }}</h4><p style="font-size:12.5px;color:#A9C8C3;margin-top:3px;font-weight:300">{{ t.divF3D }}</p></div></div>
+        <div style="display:flex;gap:13px;padding:18px;border-right:1px solid rgba(207,230,226,.16);border-bottom:1px solid rgba(207,230,226,.16)"><ion-icon name="shield-checkmark-outline" style="font-size:24px;color:#F0B33C;flex:none"></ion-icon><div><h4 style="font-size:15px;font-weight:600;color:#fff">{{ t.divF4T }}</h4><p style="font-size:12.5px;color:#A9C8C3;margin-top:3px;font-weight:300">{{ t.divF4D }}</p></div></div>
+      </div>
+      <div style="display:flex;gap:14px;margin-top:30px;flex-wrap:wrap">
+        <button onClick="{{ openDiveBooking }}" style="background:#E8623A;color:#fff;border:none;padding:16px 30px;border-radius:3px;font-weight:600;font-size:15px;cursor:pointer" style-hover="transform:translateY(-3px);background:#f06f47">{{ t.divCta1 }}</button>
+        <a href="#pillars" style="background:none;color:#fff;padding:16px 30px;border-radius:3px;font-weight:500;border:1px solid rgba(207,230,226,.28);font-size:15px" style-hover="border-color:#fff">{{ t.divCta2 }}</a>
+      </div>
+    </div>
+    <div style="position:relative">
+      <div style="position:relative;border-radius:4px;overflow:hidden;border:1px solid rgba(207,230,226,.2);min-height:400px;background:{{ diveScene }};transition:background 1s ease">
+        <div aria-hidden="true" style="position:absolute;inset:0;background-image:repeating-linear-gradient(58deg,rgba(255,255,255,.05) 0 18px,transparent 18px 36px)"></div>
+        <span class="mono" style="position:absolute;top:14px;left:14px;font-size:10px;letter-spacing:.1em;color:rgba(255,255,255,.6);background:rgba(0,0,0,.32);padding:5px 9px;border-radius:3px">PHOTO: {{ diveShot }}</span>
+        <!-- interactive depth rail -->
+        <div style="position:absolute;top:52px;bottom:76px;right:16px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;gap:10px">
+          <sc-for list="{{ diveStops }}" as="ds" hint-placeholder-count="4">
+            <button onClick="{{ ds.pick }}" class="mono" aria-label="Depth {{ ds.m }}" style="display:flex;align-items:center;gap:8px;background:{{ ds.bg }};border:1px solid {{ ds.border }};color:{{ ds.col }};padding:7px 10px;border-radius:3px;font-size:10px;letter-spacing:.12em;cursor:pointer;transition:background .3s,border-color .3s,color .3s" style-hover="border-color:#F0B33C;color:#fff"><span style="width:6px;height:6px;border-radius:50%;background:{{ ds.dot }}"></span>{{ ds.m }}</button>
+          </sc-for>
+        </div>
+        <div class="mono" style="position:absolute;bottom:14px;left:14px;display:flex;align-items:center;gap:8px;background:rgba(4,18,24,.72);padding:9px 14px;border-radius:3px;font-size:11.5px;letter-spacing:.1em;max-width:66%"><ion-icon name="arrow-down-outline" style="color:#F0B33C;flex:none"></ion-icon> {{ diveCap }}</div>
+      </div>
+      <div style="position:absolute;bottom:-24px;right:-12px;background:rgba(4,18,24,.92);backdrop-filter:blur(10px);border:1px solid rgba(207,230,226,.2);border-radius:4px;padding:18px 26px;text-align:center"><div class="serif" data-count="40" style="font-size:38px;color:#fff;line-height:1">40</div><div class="mono" style="font-size:10px;color:#F0B33C;letter-spacing:.16em;margin-top:4px">{{ t.divSites }}</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SHOP (light) ============ -->
+<section id="shop" data-screen-label="Shop" style="position:relative;padding:120px 30px;background:#ECE3D0;color:#0A1A1F;background-image:radial-gradient(circle at 94% 8%,transparent 0 260px,rgba(10,26,31,.08) 260px 261.5px,transparent 262.5px)">
+  <div style="max-width:1320px;margin:0 auto">
+    <div data-reveal style="max-width:780px;margin:0 0 46px">
+      <div class="mono" style="display:flex;align-items:center;gap:14px;font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:#C24A24"><span style="width:34px;height:1px;background:#C24A24"></span>{{ t.shopKicker }}</div>
+      <h2 class="serif" style="margin-top:22px;font-size:clamp(2.4rem,5vw,4rem);line-height:1;color:#0A1A1F">{{ t.shopT1 }}<span style="font-style:italic;color:#C24A24">{{ t.shopTb }}</span>{{ t.shopTc }}</h2>
+    </div>
+
+    <!-- gear finder -->
+    <div data-reveal style="border:1px solid rgba(10,26,31,.18);border-radius:4px;padding:32px;margin-bottom:48px;background:rgba(255,255,255,.4)">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
+        <ion-icon name="compass-outline" style="font-size:30px;color:#C24A24;flex:none"></ion-icon>
+        <div><h3 class="serif" style="font-size:24px;color:#0A1A1F">{{ t.gfTitle }}</h3><p class="mono" style="font-size:11px;letter-spacing:.12em;color:#6A7A72;margin-top:4px;text-transform:uppercase">{{ t.gfSub }}</p></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:26px">
+        <div class="mono" style="display:grid;place-items:center;width:32px;height:32px;border-radius:50%;font-size:13px;font-weight:600;background:{{ dot1 }};color:#fff">1</div>
+        <div style="flex:1;height:1px;background:rgba(10,26,31,.18)"></div>
+        <div class="mono" style="display:grid;place-items:center;width:32px;height:32px;border-radius:50%;font-size:13px;font-weight:600;background:{{ dot2 }};color:#fff">2</div>
+        <div style="flex:1;height:1px;background:rgba(10,26,31,.18)"></div>
+        <div class="mono" style="display:grid;place-items:center;width:32px;height:32px;border-radius:50%;font-size:13px;font-weight:600;background:{{ dot3 }};color:#fff">3</div>
+        <div style="flex:1;height:1px;background:rgba(10,26,31,.18)"></div>
+        <div style="display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:{{ dot4 }};color:#fff"><ion-icon name="ribbon-outline" style="font-size:16px"></ion-icon></div>
+      </div>
+      <div style="min-height:150px">
+        <sc-if value="{{ gfQ1 }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <h4 style="font-size:17px;font-weight:600;margin-bottom:16px;color:#0A1A1F">{{ t.gfQ1 }}</h4>
+            <div class="rosi-gf-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+              <button onClick="{{ pickDestNorway }}" style="background:{{ destNorwayBg }};border:1px solid {{ destNorwayBorder }};border-radius:3px;padding:18px;color:#0A1A1F;cursor:pointer;text-align:left" style-hover="border-color:#C24A24"><ion-icon name="snow-outline" style="font-size:26px;color:#C24A24"></ion-icon><div style="margin-top:10px;font-size:14px;font-weight:600">Lofoten, Norway</div><div class="mono" style="font-size:11px;color:#6A7A72;margin-top:2px">COLD SEA</div></button>
+              <button onClick="{{ pickDestMaldives }}" style="background:{{ destMaldivesBg }};border:1px solid {{ destMaldivesBorder }};border-radius:3px;padding:18px;color:#0A1A1F;cursor:pointer;text-align:left" style-hover="border-color:#C24A24"><ion-icon name="sunny-outline" style="font-size:26px;color:#C24A24"></ion-icon><div style="margin-top:10px;font-size:14px;font-weight:600">Maldives</div><div class="mono" style="font-size:11px;color:#6A7A72;margin-top:2px">TROPICAL REEFS</div></button>
+              <button onClick="{{ pickDestAmalfi }}" style="background:{{ destAmalfiBg }};border:1px solid {{ destAmalfiBorder }};border-radius:3px;padding:18px;color:#0A1A1F;cursor:pointer;text-align:left" style-hover="border-color:#C24A24"><ion-icon name="boat-outline" style="font-size:26px;color:#C24A24"></ion-icon><div style="margin-top:10px;font-size:14px;font-weight:600">Amalfi, Italy</div><div class="mono" style="font-size:11px;color:#6A7A72;margin-top:2px">DEEP BLUE</div></button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ gfQ2 }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <h4 style="font-size:17px;font-weight:600;margin-bottom:16px;color:#0A1A1F">{{ t.gfQ2 }}</h4>
+            <div class="rosi-gf-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+              <button onClick="{{ pickTargetGiant }}" style="background:{{ tGiantBg }};border:1px solid {{ tGiantBorder }};border-radius:3px;padding:18px;color:#0A1A1F;cursor:pointer;text-align:left" style-hover="border-color:#C24A24"><ion-icon name="ribbon-outline" style="font-size:26px;color:#C24A24"></ion-icon><div style="margin-top:10px;font-size:14px;font-weight:600">Apex monsters</div><div class="mono" style="font-size:11px;color:#6A7A72;margin-top:2px">TUNA, COD</div></button>
+              <button onClick="{{ pickTargetMedium }}" style="background:{{ tMediumBg }};border:1px solid {{ tMediumBorder }};border-radius:3px;padding:18px;color:#0A1A1F;cursor:pointer;text-align:left" style-hover="border-color:#C24A24"><ion-icon name="fish-outline" style="font-size:26px;color:#C24A24"></ion-icon><div style="margin-top:10px;font-size:14px;font-weight:600">Reef game</div><div class="mono" style="font-size:11px;color:#6A7A72;margin-top:2px">TREVALLY, SNAPPER</div></button>
+              <button onClick="{{ pickTargetLight }}" style="background:{{ tLightBg }};border:1px solid {{ tLightBorder }};border-radius:3px;padding:18px;color:#0A1A1F;cursor:pointer;text-align:left" style-hover="border-color:#C24A24"><ion-icon name="leaf-outline" style="font-size:26px;color:#C24A24"></ion-icon><div style="margin-top:10px;font-size:14px;font-weight:600">Light coastal</div><div class="mono" style="font-size:11px;color:#6A7A72;margin-top:2px">SQUID, SEABASS</div></button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ gfQ3 }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <h4 style="font-size:17px;font-weight:600;margin-bottom:16px;color:#0A1A1F">{{ t.gfQ3 }}</h4>
+            <div class="rosi-gf-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+              <button onClick="{{ pickSkillBeg }}" style="background:{{ sBegBg }};border:1px solid {{ sBegBorder }};border-radius:3px;padding:18px;color:#0A1A1F;cursor:pointer;text-align:left" style-hover="border-color:#C24A24"><ion-icon name="sparkles-outline" style="font-size:26px;color:#C24A24"></ion-icon><div style="margin-top:10px;font-size:14px;font-weight:600">Beginner</div><div class="mono" style="font-size:11px;color:#6A7A72;margin-top:2px">FIRST-TIMER</div></button>
+              <button onClick="{{ pickSkillInt }}" style="background:{{ sIntBg }};border:1px solid {{ sIntBorder }};border-radius:3px;padding:18px;color:#0A1A1F;cursor:pointer;text-align:left" style-hover="border-color:#C24A24"><ion-icon name="construct-outline" style="font-size:26px;color:#C24A24"></ion-icon><div style="margin-top:10px;font-size:14px;font-weight:600">Intermediate</div><div class="mono" style="font-size:11px;color:#6A7A72;margin-top:2px">HOOKED</div></button>
+              <button onClick="{{ pickSkillExp }}" style="background:{{ sExpBg }};border:1px solid {{ sExpBorder }};border-radius:3px;padding:18px;color:#0A1A1F;cursor:pointer;text-align:left" style-hover="border-color:#C24A24"><ion-icon name="trophy-outline" style="font-size:26px;color:#C24A24"></ion-icon><div style="margin-top:10px;font-size:14px;font-weight:600">Expert</div><div class="mono" style="font-size:11px;color:#6A7A72;margin-top:2px">SEA CAPTAIN</div></button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ gfQ4 }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:22px;align-items:center;background:#0A1A1F;border-radius:4px;padding:24px;color:#fff">
+            <div style="display:grid;place-items:center;width:80px;height:80px;border-radius:4px;background:#E8623A;flex:none"><ion-icon name="trophy" style="font-size:38px;color:#fff"></ion-icon></div>
+            <div style="flex:1">
+              <div class="mono" style="font-size:11px;letter-spacing:.18em;color:#F0B33C;text-transform:uppercase">{{ t.gfRec }}</div>
+              <h4 class="serif" style="font-size:24px;margin-top:5px;color:#fff">{{ recName }}</h4>
+              <p style="font-size:13.5px;color:#A9C8C3;margin-top:6px;line-height:1.5;font-weight:300">{{ recDesc }}</p>
+              <div style="display:flex;align-items:center;gap:16px;margin-top:16px">
+                <span class="mono" style="font-size:22px;font-weight:600;color:#E8623A">{{ recPrice }}</span>
+                <button onClick="{{ addRecToCart }}" style="background:#E8623A;color:#fff;border:none;padding:11px 20px;border-radius:3px;font-weight:600;cursor:pointer;font-size:13px" style-hover="background:#f06f47">{{ t.addToCart }}</button>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:24px">
+        <button onClick="{{ gfPrev }}" class="mono" style="visibility:{{ gfPrevVis }};background:none;border:1px solid rgba(10,26,31,.24);color:#0A1A1F;padding:11px 20px;border-radius:3px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer" style-hover="border-color:#0A1A1F">{{ t.gfBack }}</button>
+        <button onClick="{{ gfNext }}" class="mono" style="background:#E8623A;color:#fff;border:none;padding:11px 22px;border-radius:3px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer" style-hover="background:#f06f47">{{ gfNextLabel }}</button>
+      </div>
+    </div>
+
+    <!-- filters + products -->
+    <div data-reveal>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:30px">
+        <button onClick="{{ filterAll }}" class="mono" style="background:{{ fAllBg }};color:{{ fAllColor }};border:1px solid rgba(10,26,31,.22);padding:10px 18px;border-radius:3px;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer">{{ t.filtAll }}</button>
+        <button onClick="{{ filterRods }}" class="mono" style="background:{{ fRodsBg }};color:{{ fRodsColor }};border:1px solid rgba(10,26,31,.22);padding:10px 18px;border-radius:3px;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer">{{ t.filtRods }}</button>
+        <button onClick="{{ filterLures }}" class="mono" style="background:{{ fLuresBg }};color:{{ fLuresColor }};border:1px solid rgba(10,26,31,.22);padding:10px 18px;border-radius:3px;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer">{{ t.filtLures }}</button>
+        <button onClick="{{ filterSouvenirs }}" class="mono" style="background:{{ fSouvBg }};color:{{ fSouvColor }};border:1px solid rgba(10,26,31,.22);padding:10px 18px;border-radius:3px;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer">{{ t.filtSouv }}</button>
+      </div>
+      <div class="rosi-grid-4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px">
+        <sc-for list="{{ products }}" as="p" hint-placeholder-count="8">
+          <article style="border:1px solid rgba(10,26,31,.16);border-radius:4px;overflow:hidden;background:rgba(255,255,255,.35);transition:transform .35s cubic-bezier(.175,.885,.32,1.275)" style-hover="transform:translateY(-6px)">
+            <div style="position:relative;height:150px;background:repeating-linear-gradient(45deg,#dfd3bb 0 12px,#d6c9ad 12px 24px);display:grid;place-items:center;border-bottom:1px solid rgba(10,26,31,.12)">
+              <ion-icon name="{{ p.icon }}" style="font-size:42px;color:#0A1A1F"></ion-icon>
+              <span class="mono" style="position:absolute;top:10px;left:10px;font-size:9px;color:rgba(10,26,31,.5);background:rgba(255,255,255,.6);padding:3px 6px;border-radius:2px">{{ p.shot }}</span>
+              <sc-if value="{{ p.canAR }}" hint-placeholder-val="{{ false }}"><button onClick="{{ p.previewAR }}" class="mono" aria-label="In AR ansehen" style="position:absolute;top:10px;right:10px;display:flex;align-items:center;gap:5px;font-size:9px;letter-spacing:.1em;background:#0A1A1F;color:#fff;border:none;padding:5px 8px;border-radius:2px;cursor:pointer" style-hover="background:#E8623A"><ion-icon name="scan-outline" style="font-size:13px"></ion-icon>AR</button></sc-if>
+            </div>
+            <div style="padding:16px">
+              <div class="mono" style="font-size:10px;letter-spacing:.14em;color:#C24A24;text-transform:uppercase">{{ p.cat }}</div>
+              <h4 style="font-size:15.5px;font-weight:600;margin-top:6px;color:#0A1A1F">{{ p.name }}</h4>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px">
+                <span class="mono" style="font-size:17px;font-weight:600;color:#0A1A1F">{{ p.priceLabel }}</span>
+                <button onClick="{{ p.add }}" aria-label="In den Warenkorb" style="display:grid;place-items:center;width:38px;height:38px;border-radius:3px;background:#0A1A1F;color:#fff;border:none;cursor:pointer" style-hover="background:#E8623A"><ion-icon name="add-outline" style="font-size:20px"></ion-icon></button>
+              </div>
+            </div>
+          </article>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONCIERGE (deep VIP) ============ -->
+<section id="concierge" data-screen-label="Concierge" style="position:relative;padding:120px 30px;background:#072a33;background-image:radial-gradient(circle at 10% 88%,transparent 0 240px,rgba(240,179,60,.10) 240px 241.5px,transparent 242.5px)">
+  <div class="rosi-grid-2" style="max-width:1320px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center" data-reveal>
+    <div>
+      <div class="mono" style="display:flex;align-items:center;gap:14px;font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:#F0B33C"><span style="width:34px;height:1px;background:#F0B33C"></span>{{ t.conKicker }}</div>
+      <h2 class="serif" style="margin-top:22px;font-size:clamp(2.4rem,5vw,4rem);line-height:1;color:#F4EEDD">{{ t.conT1 }}<br><span style="font-style:italic;color:#F0B33C">{{ t.conT2b }}</span>{{ t.conT2c }}</h2>
+      <p style="margin-top:18px;font-size:1.05rem;color:#A9C8C3;line-height:1.65;max-width:480px;font-weight:300">{{ t.conSub }}</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:28px;border-top:1px solid rgba(207,230,226,.16);border-left:1px solid rgba(207,230,226,.16)">
+        <div style="padding:20px;border-right:1px solid rgba(207,230,226,.16);border-bottom:1px solid rgba(207,230,226,.16)"><ion-icon name="ribbon-outline" style="font-size:26px;color:#F0B33C"></ion-icon><h4 style="margin-top:10px;font-size:15px;font-weight:600;color:#fff">{{ t.conF1T }}</h4><p style="font-size:12.5px;color:#A9C8C3;margin-top:4px;font-weight:300">{{ t.conF1D }}</p></div>
+        <div style="padding:20px;border-right:1px solid rgba(207,230,226,.16);border-bottom:1px solid rgba(207,230,226,.16)"><ion-icon name="wine-outline" style="font-size:26px;color:#F0B33C"></ion-icon><h4 style="margin-top:10px;font-size:15px;font-weight:600;color:#fff">{{ t.conF2T }}</h4><p style="font-size:12.5px;color:#A9C8C3;margin-top:4px;font-weight:300">{{ t.conF2D }}</p></div>
+      </div>
+    </div>
+    <div style="background:#04161c;border:1px solid rgba(207,230,226,.16);border-radius:4px;padding:34px">
+      <h3 class="serif" style="font-size:24px;color:#fff;margin-bottom:22px">{{ t.vipTitle }}</h3>
+      <form onSubmit="{{ submitVip }}" style="display:flex;flex-direction:column;gap:16px">
+        <div class="rosi-form-2" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div><label for="vip-name" class="mono" style="display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#7FA39D;margin-bottom:7px">{{ t.fName }}</label><input id="vip-name" type="text" required placeholder="Cap. John Smith" style="width:100%;padding:12px 14px;border:1px solid rgba(207,230,226,.18);border-radius:3px;background:rgba(207,230,226,.04);color:#fff;font-family:'Hanken Grotesk';font-size:14px" style-focus="border-color:#F0B33C;outline:none"></div>
+          <div><label for="vip-email" class="mono" style="display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#7FA39D;margin-bottom:7px">{{ t.fEmail }}</label><input id="vip-email" type="email" required placeholder="captain@yacht.com" style="width:100%;padding:12px 14px;border:1px solid rgba(207,230,226,.18);border-radius:3px;background:rgba(207,230,226,.04);color:#fff;font-family:'Hanken Grotesk';font-size:14px" style-focus="border-color:#F0B33C;outline:none"></div>
+        </div>
+        <div><label for="vip-hub" class="mono" style="display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#7FA39D;margin-bottom:7px">{{ t.fHub }}</label><select id="vip-hub" style="width:100%;padding:12px 14px;border:1px solid rgba(207,230,226,.18);border-radius:3px;background:rgba(207,230,226,.04);color:#fff;font-family:'Hanken Grotesk';font-size:14px"><option>Amalfi Coast, Italy</option><option>Lofoten, Norway</option><option>Maldives</option><option>Oahu, Hawaii</option><option>Tokyo Bay, Japan</option><option>Santorini, Greece</option><option>Uluwatu, Bali</option><option>Cairns Reef, Australia</option><option>Cabo San Lucas, Mexico</option><option>Algarve, Portugal</option><option>Zanzibar, Tanzania</option><option>Phú Quốc, Vietnam</option></select></div>
+        <div><label for="vip-req" class="mono" style="display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#7FA39D;margin-bottom:7px">{{ t.fReq }}</label><textarea id="vip-req" rows="3" required placeholder="Superyacht helipad, onboard sommelier, deep-sea sub dive..." style="width:100%;padding:12px 14px;border:1px solid rgba(207,230,226,.18);border-radius:3px;background:rgba(207,230,226,.04);color:#fff;font-family:'Hanken Grotesk';font-size:14px;resize:vertical" style-focus="border-color:#F0B33C;outline:none"></textarea></div>
+        <button type="submit" style="background:#E8623A;color:#fff;border:none;padding:15px;border-radius:3px;font-weight:600;font-size:15px;cursor:pointer" style-hover="transform:translateY(-2px);background:#f06f47">{{ vipBtnLabel }}</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ABOUT (light logbook) ============ -->
+<section id="about" data-screen-label="About" style="position:relative;padding:120px 30px;background:#ECE3D0;color:#0A1A1F">
+  <div class="rosi-grid-2" style="max-width:1320px;margin:0 auto;display:grid;grid-template-columns:.9fr 1.1fr;gap:48px;align-items:center" data-reveal>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="position:relative;border-radius:4px;overflow:hidden;height:250px;border:1px solid rgba(10,26,31,.16);background:repeating-linear-gradient(45deg,#dfd3bb 0 14px,#d6c9ad 14px 28px)">
+        <span class="mono" style="position:absolute;top:12px;left:12px;font-size:10px;color:rgba(10,26,31,.5);background:rgba(255,255,255,.6);padding:4px 8px;border-radius:2px">PHOTO: OPEN SEAS AT DAWN</span>
+        <div style="position:absolute;bottom:0;left:0;right:0;padding:16px;background:linear-gradient(transparent,rgba(236,227,208,.95))"><strong class="serif" style="font-size:18px">{{ t.aboutC1T }}</strong><p class="mono" style="font-size:11px;color:#4F5F57;margin-top:2px">{{ t.aboutC1S }}</p></div>
+      </div>
+      <div style="position:relative;border-radius:4px;overflow:hidden;height:160px;border:1px solid rgba(10,26,31,.16);background:repeating-linear-gradient(45deg,#d8cdb2 0 14px,#cfc2a4 14px 28px)">
+        <span class="mono" style="position:absolute;top:12px;left:12px;font-size:10px;color:rgba(10,26,31,.5);background:rgba(255,255,255,.6);padding:4px 8px;border-radius:2px">PHOTO: SEASIDE KITCHEN</span>
+        <div style="position:absolute;bottom:0;left:0;right:0;padding:16px;background:linear-gradient(transparent,rgba(236,227,208,.95))"><strong class="serif" style="font-size:18px">{{ t.aboutC2T }}</strong><p class="mono" style="font-size:11px;color:#4F5F57;margin-top:2px">{{ t.aboutC2S }}</p></div>
+      </div>
+    </div>
+    <div>
+      <div class="mono" style="display:flex;align-items:center;gap:14px;font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:#C24A24"><span style="width:34px;height:1px;background:#C24A24"></span>{{ t.aboutKicker }}</div>
+      <h2 class="serif" style="margin-top:22px;font-size:clamp(2.4rem,5vw,4rem);line-height:1;color:#0A1A1F">{{ t.aboutT1 }}<span style="font-style:italic;color:#C24A24">{{ t.aboutTb }}</span>{{ t.aboutTc }}</h2>
+      <p style="margin-top:18px;font-size:1.05rem;color:#4F5F57;line-height:1.65">{{ t.aboutSub }}</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:28px;border-top:1px solid rgba(10,26,31,.18);border-left:1px solid rgba(10,26,31,.18)">
+        <div style="display:flex;gap:13px;padding:20px;border-right:1px solid rgba(10,26,31,.18);border-bottom:1px solid rgba(10,26,31,.18)"><ion-icon name="shield-checkmark-outline" style="font-size:28px;color:#C24A24;flex:none"></ion-icon><div><h4 style="font-size:15px;font-weight:600">{{ t.aboutF1T }}</h4><p style="font-size:12.5px;color:#4F5F57;margin-top:3px">{{ t.aboutF1D }}</p></div></div>
+        <div style="display:flex;gap:13px;padding:20px;border-right:1px solid rgba(10,26,31,.18);border-bottom:1px solid rgba(10,26,31,.18)"><ion-icon name="ribbon-outline" style="font-size:28px;color:#C24A24;flex:none"></ion-icon><div><h4 style="font-size:15px;font-weight:600">{{ t.aboutF2T }}</h4><p style="font-size:12.5px;color:#4F5F57;margin-top:3px">{{ t.aboutF2D }}</p></div></div>
+      </div>
+      <!-- logbook timeline -->
+      <div style="margin-top:30px;display:flex;flex-direction:column;gap:0">
+        <div style="display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px dashed rgba(10,26,31,.2)"><span class="mono" style="flex:none;width:58px;font-size:12px;font-weight:600;color:#C24A24">2024</span><p style="font-size:13.5px;color:#4F5F57;line-height:1.5">{{ t.tl1 }}</p></div>
+        <div style="display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px dashed rgba(10,26,31,.2)"><span class="mono" style="flex:none;width:58px;font-size:12px;font-weight:600;color:#C24A24">2025</span><p style="font-size:13.5px;color:#4F5F57;line-height:1.5">{{ t.tl2 }}</p></div>
+        <div style="display:flex;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px dashed rgba(10,26,31,.2)"><span class="mono" style="flex:none;width:58px;font-size:12px;font-weight:600;color:#C24A24">2026</span><p style="font-size:13.5px;color:#4F5F57;line-height:1.5">{{ t.tl3 }}</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DECK LOGS (testimonials · radio log) ============ -->
+<section id="logs" data-screen-label="Deck Logs" style="position:relative;padding:120px 30px;background:#062029;background-image:radial-gradient(circle at 6% 20%,transparent 0 220px,rgba(63,142,134,.11) 220px 221.5px,transparent 222.5px),radial-gradient(circle at 6% 20%,transparent 0 420px,rgba(63,142,134,.06) 420px 421.5px,transparent 422.5px)">
+  <div style="max-width:1320px;margin:0 auto">
+    <div data-reveal style="display:flex;justify-content:space-between;align-items:flex-end;gap:30px;flex-wrap:wrap;margin-bottom:54px">
+      <div style="max-width:680px">
+        <div class="mono" style="display:flex;align-items:center;gap:14px;font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:#E8623A"><span style="width:34px;height:1px;background:#E8623A"></span>{{ t.logsKicker }}</div>
+        <h2 class="serif" style="margin-top:22px;font-size:clamp(2.4rem,5vw,4rem);line-height:1;color:#F4EEDD">{{ t.logsT1 }}<br>{{ t.logsT2a }}<span style="font-style:italic;color:#E8623A">{{ t.logsT2b }}</span>{{ t.logsT2c }}</h2>
+      </div>
+      <div class="mono" style="display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.14em;color:#9FBDB8;text-transform:uppercase"><span style="width:7px;height:7px;border-radius:50%;background:#3E8E86;animation:pulseDot 2.4s infinite"></span>{{ t.logsBadge }}</div>
+    </div>
+    <div class="rosi-grid-3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px" data-stagger>
+      <sc-for list="{{ logs }}" as="lg" hint-placeholder-count="3">
+        <article style="position:relative;display:flex;flex-direction:column;border:1px solid rgba(207,230,226,.14);border-radius:4px;background:rgba(4,18,24,.45);padding:26px;transition:transform .35s cubic-bezier(.22,1,.36,1),border-color .35s" style-hover="transform:translateY(-6px);border-color:rgba(240,179,60,.5)">
+          <div class="mono" style="display:flex;justify-content:space-between;gap:10px;font-size:10px;letter-spacing:.12em;color:#7FA39D;text-transform:uppercase;border-bottom:1px dashed rgba(207,230,226,.16);padding-bottom:14px">
+            <span style="color:#F0B33C">{{ lg.stamp }}</span><span>{{ lg.coord }}</span>
+          </div>
+          <p class="serif" style="margin-top:18px;font-size:21px;line-height:1.35;color:#F4EEDD;flex:1">“{{ lg.quote }}”</p>
+          <div style="display:flex;align-items:center;gap:12px;margin-top:22px">
+            <div class="serif" aria-hidden="true" style="display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:rgba(63,142,134,.22);border:1px solid rgba(63,142,134,.4);color:#CFE6E2;font-size:18px;flex:none">{{ lg.initials }}</div>
+            <div style="flex:1"><div style="font-size:14px;font-weight:600;color:#fff">{{ lg.name }}</div><div class="mono" style="font-size:10.5px;letter-spacing:.1em;color:#7FA39D;margin-top:2px">{{ lg.role }}</div></div>
+            <div class="mono" style="font-size:11px;color:#F0B33C;letter-spacing:.06em;flex:none">★ {{ lg.rating }}</div>
+          </div>
+        </article>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER (abyss) ============ -->
+<footer style="background:#04161c;padding:70px 30px 30px;border-top:1px solid rgba(207,230,226,.12)">
+  <div class="rosi-grid-4" style="max-width:1320px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1.4fr;gap:40px">
+    <div>
+      <div style="display:flex;align-items:baseline;gap:10px"><span class="serif" style="font-family:'Instrument Serif',Georgia,serif;font-size:34px;letter-spacing:.04em;color:#fff;line-height:1">Rosi</span><span class="mono" style="font-size:10px;letter-spacing:.3em;color:#3E8E86;text-transform:uppercase">Ocean Co.</span></div>
+      <p style="margin-top:14px;font-size:14px;color:#7FA39D;line-height:1.6;max-width:280px;font-weight:300">{{ t.footTag }}</p>
+      <div style="display:flex;gap:10px;margin-top:18px">
+        <a href="#" aria-label="Instagram" style="display:grid;place-items:center;width:40px;height:40px;border-radius:3px;border:1px solid rgba(207,230,226,.18);color:#CFE6E2" style-hover="background:#E8623A;border-color:#E8623A;color:#fff"><ion-icon name="logo-instagram"></ion-icon></a>
+        <a href="#" aria-label="Facebook" style="display:grid;place-items:center;width:40px;height:40px;border-radius:3px;border:1px solid rgba(207,230,226,.18);color:#CFE6E2" style-hover="background:#E8623A;border-color:#E8623A;color:#fff"><ion-icon name="logo-facebook"></ion-icon></a>
+        <a href="#" aria-label="YouTube" style="display:grid;place-items:center;width:40px;height:40px;border-radius:3px;border:1px solid rgba(207,230,226,.18);color:#CFE6E2" style-hover="background:#E8623A;border-color:#E8623A;color:#fff"><ion-icon name="logo-youtube"></ion-icon></a>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:11px">
+      <h4 class="mono" style="font-size:11px;letter-spacing:.2em;color:#5C7E78;text-transform:uppercase;margin-bottom:5px">{{ t.footNav }}</h4>
+      <a href="#hero" style="font-size:14px;color:#9FBDB8" style-hover="color:#fff">{{ t.footHome }}</a>
+      <a href="#locations" style="font-size:14px;color:#9FBDB8" style-hover="color:#fff">{{ t.navHubs }}</a>
+      <a href="#experiences" style="font-size:14px;color:#9FBDB8" style-hover="color:#fff">{{ t.footSea }}</a>
+      <a href="#shop" style="font-size:14px;color:#9FBDB8" style-hover="color:#fff">{{ t.footStores }}</a>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:11px">
+      <h4 class="mono" style="font-size:11px;letter-spacing:.2em;color:#5C7E78;text-transform:uppercase;margin-bottom:5px">{{ t.footHubs }}</h4>
+      <a href="#locations" style="font-size:14px;color:#9FBDB8" style-hover="color:#fff">Amalfi Coast</a>
+      <a href="#locations" style="font-size:14px;color:#9FBDB8" style-hover="color:#fff">Lofoten</a>
+      <a href="#locations" style="font-size:14px;color:#9FBDB8" style-hover="color:#fff">Maldives</a>
+      <a href="#locations" style="font-size:14px;color:#9FBDB8" style-hover="color:#fff">Oahu</a>
+    </div>
+    <div>
+      <h4 class="mono" style="font-size:11px;letter-spacing:.2em;color:#5C7E78;text-transform:uppercase;margin-bottom:10px">{{ t.footJoin }}</h4>
+      <p style="font-size:13px;color:#7FA39D;margin-bottom:12px;font-weight:300">{{ t.footNews }}</p>
+      <form onSubmit="{{ submitNews }}" style="display:flex;gap:8px">
+        <input type="email" required placeholder="ocean@lifestyle.com" aria-label="Newsletter Email" style="flex:1;padding:12px 14px;border:1px solid rgba(207,230,226,.18);border-radius:3px;background:rgba(207,230,226,.04);color:#fff;font-family:'Hanken Grotesk';font-size:14px" style-focus="border-color:#3E8E86;outline:none">
+        <button type="submit" aria-label="Subscribe" style="display:grid;place-items:center;width:46px;border-radius:3px;background:#E8623A;color:#fff;border:none;cursor:pointer" style-hover="background:#f06f47"><ion-icon name="arrow-forward-outline" style="font-size:20px"></ion-icon></button>
+      </form>
+    </div>
+  </div>
+  <div class="mono" style="max-width:1320px;margin:40px auto 0;padding-top:22px;border-top:1px solid rgba(207,230,226,.1);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:11.5px;letter-spacing:.1em;color:#5C7E78">
+    <span>© 2026 ROSI OCEAN CO. ALL RIGHTS RESERVED</span>
+    <span>12 HUBS · 85 BOATS · 40 DIVE SITES</span>
+  </div>
+</footer>
+
+<!-- ============ AR PREVIEW MODAL ============ -->
+<div style="position:fixed;inset:0;z-index:110;display:grid;place-items:center;padding:24px;background:rgba(2,11,15,.8);backdrop-filter:blur(4px);opacity:{{ arOpacity }};pointer-events:{{ arEvents }};transition:opacity .35s">
+  <div style="position:relative;width:min(560px,94vw);aspect-ratio:4/3;border-radius:5px;overflow:hidden;border:1px solid rgba(207,230,226,.22);background:linear-gradient(160deg,#0a4a54,#04161c)">
+    <!-- simulated camera grid -->
+    <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(63,142,134,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(63,142,134,.14) 1px,transparent 1px);background-size:38px 38px"></div>
+    <div style="position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#F0B33C,transparent);animation:scan 3.4s ease-in-out infinite alternate"></div>
+    <!-- reticle -->
+    <div style="position:absolute;top:50%;left:50%;width:60px;height:60px;transform:translate(-50%,-50%);border:1px solid rgba(240,179,60,.5);border-radius:4px"></div>
+    <!-- draggable asset -->
+    <div id="ar-asset" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate({{ arRot }}deg) scale({{ arScale }});cursor:grab;touch-action:none;text-align:center">
+      <div style="display:grid;place-items:center;width:120px;height:120px;border-radius:8px;background:radial-gradient(circle at 40% 30%,rgba(240,179,60,.35),rgba(232,98,58,.25));border:1px solid rgba(255,255,255,.3);box-shadow:0 0 40px rgba(240,179,60,.4)"><ion-icon name="{{ arIcon }}" style="font-size:58px;color:#fff"></ion-icon></div>
+      <div class="mono" style="margin-top:8px;font-size:10px;letter-spacing:.12em;color:#fff;background:rgba(4,18,24,.6);padding:3px 8px;border-radius:2px;display:inline-block">{{ arName }}</div>
+    </div>
+    <!-- HUD -->
+    <div class="mono" style="position:absolute;top:14px;left:14px;display:flex;align-items:center;gap:7px;font-size:10px;letter-spacing:.12em;color:#F0B33C;text-transform:uppercase"><span style="width:7px;height:7px;border-radius:50%;background:#F0B33C;animation:pulseDot 2s infinite"></span>AR anchoring · {{ arName }}</div>
+    <button onClick="{{ closeAR }}" aria-label="AR schließen" style="position:absolute;top:12px;right:12px;display:grid;place-items:center;width:34px;height:34px;border-radius:3px;background:rgba(4,18,24,.6);border:1px solid rgba(207,230,226,.2);color:#fff;cursor:pointer" style-hover="border-color:#E8623A"><ion-icon name="close-outline" style="font-size:18px"></ion-icon></button>
+    <!-- controls -->
+    <div style="position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:8px;background:rgba(4,18,24,.6);padding:8px;border-radius:4px;border:1px solid rgba(207,230,226,.16)">
+      <button onClick="{{ arRotate }}" aria-label="Drehen" style="display:grid;place-items:center;width:38px;height:38px;border-radius:3px;background:none;border:1px solid rgba(207,230,226,.2);color:#fff;cursor:pointer" style-hover="border-color:#F0B33C"><ion-icon name="refresh-outline" style="font-size:18px"></ion-icon></button>
+      <button onClick="{{ arBigger }}" aria-label="Größer" style="display:grid;place-items:center;width:38px;height:38px;border-radius:3px;background:none;border:1px solid rgba(207,230,226,.2);color:#fff;cursor:pointer" style-hover="border-color:#F0B33C"><ion-icon name="add-outline" style="font-size:20px"></ion-icon></button>
+      <button onClick="{{ arSmaller }}" aria-label="Kleiner" style="display:grid;place-items:center;width:38px;height:38px;border-radius:3px;background:none;border:1px solid rgba(207,230,226,.2);color:#fff;cursor:pointer" style-hover="border-color:#F0B33C"><ion-icon name="remove-outline" style="font-size:20px"></ion-icon></button>
+      <button onClick="{{ arAddToCart }}" style="display:flex;align-items:center;gap:7px;background:#E8623A;color:#fff;border:none;padding:0 16px;height:38px;border-radius:3px;font-size:13px;font-weight:600;cursor:pointer" style-hover="background:#f06f47"><ion-icon name="basket-outline" style="font-size:16px"></ion-icon>{{ t.arAdd }}</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DRAWERS ============ -->
+<div onClick="{{ closeDrawer }}" style="position:fixed;inset:0;z-index:90;background:rgba(2,11,15,.66);backdrop-filter:blur(2px);opacity:{{ overlayOpacity }};pointer-events:{{ overlayEvents }};transition:opacity .35s"></div>
+
+<!-- Booking drawer -->
+<aside style="position:fixed;top:0;right:0;bottom:0;z-index:100;width:min(430px,92vw);background:#062029;border-left:1px solid rgba(207,230,226,.14);transform:translateX({{ bookingX }});transition:transform .42s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:22px;border-bottom:1px solid rgba(207,230,226,.1)">
+    <h3 class="serif" style="font-size:22px;color:#fff">{{ t.bkTitle }}</h3>
+    <button onClick="{{ closeDrawer }}" aria-label="Schließen" style="display:grid;place-items:center;width:36px;height:36px;border-radius:3px;border:1px solid rgba(207,230,226,.18);background:none;color:#fff;cursor:pointer" style-hover="border-color:#E8623A"><ion-icon name="close-outline" style="font-size:20px"></ion-icon></button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:22px">
+    <sc-if value="{{ bookingOpen2 }}" hint-placeholder-val="{{ true }}">
+      <form onSubmit="{{ submitBooking }}" style="display:flex;flex-direction:column;gap:18px">
+        <div><label for="bk-hub" class="mono" style="display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#7FA39D;margin-bottom:7px">{{ t.fHub }}</label><select id="bk-hub" style="width:100%;padding:12px 14px;border:1px solid rgba(207,230,226,.18);border-radius:3px;background:rgba(207,230,226,.04);color:#fff;font-family:'Hanken Grotesk';font-size:14px"><option>Amalfi Coast, Italy</option><option>Lofoten, Norway</option><option>Maldives</option><option>Oahu, Hawaii</option><option>Tokyo Bay, Japan</option><option>Santorini, Greece</option><option>Uluwatu, Bali</option><option>Cairns Reef, Australia</option><option>Cabo San Lucas, Mexico</option><option>Algarve, Portugal</option><option>Zanzibar, Tanzania</option><option>Phú Quốc, Vietnam</option></select></div>
+        <div><label for="bk-pillar" class="mono" style="display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#7FA39D;margin-bottom:7px">{{ t.bkPillar }}</label><select id="bk-pillar" onChange="{{ onPillarChange }}" style="width:100%;padding:12px 14px;border:1px solid rgba(207,230,226,.18);border-radius:3px;background:rgba(207,230,226,.04);color:#fff;font-family:'Hanken Grotesk';font-size:14px"><option value="boat">{{ t.bkOptBoat }}</option><option value="dining">{{ t.bkOptDining }}</option><option value="diving">{{ t.bkOptDiving }}</option><option value="water">{{ t.bkOptWater }}</option></select></div>
+        <div><label for="bk-date" class="mono" style="display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#7FA39D;margin-bottom:7px">{{ t.bkDate }}</label><input id="bk-date" type="date" style="width:100%;padding:12px 14px;border:1px solid rgba(207,230,226,.18);border-radius:3px;background:rgba(207,230,226,.04);color:#fff;font-family:'Hanken Grotesk';font-size:14px"></div>
+        <div><label for="bk-guests" class="mono" style="display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#7FA39D;margin-bottom:7px">{{ t.bkGuests }}</label><input id="bk-guests" type="number" min="1" max="12" value="2" onInput="{{ onGuestsChange }}" style="width:100%;padding:12px 14px;border:1px solid rgba(207,230,226,.18);border-radius:3px;background:rgba(207,230,226,.04);color:#fff;font-family:'Hanken Grotesk';font-size:14px"></div>
+        <div><label for="bk-name" class="mono" style="display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#7FA39D;margin-bottom:7px">{{ t.fName }}</label><input id="bk-name" type="text" required placeholder="Cap. John Smith" style="width:100%;padding:12px 14px;border:1px solid rgba(207,230,226,.18);border-radius:3px;background:rgba(207,230,226,.04);color:#fff;font-family:'Hanken Grotesk';font-size:14px"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(232,98,58,.3);border-radius:3px;padding:14px 16px"><span class="mono" style="font-size:12px;letter-spacing:.1em;color:#9FBDB8;text-transform:uppercase">{{ t.bkTotal }}</span><strong class="mono" style="font-size:20px;color:#E8623A">{{ bookingTotal }}</strong></div>
+        <button type="submit" style="background:#E8623A;color:#fff;border:none;padding:15px;border-radius:3px;font-weight:600;font-size:15px;cursor:pointer" style-hover="background:#f06f47">{{ t.bkConfirm }}</button>
+      </form>
+    </sc-if>
+    <sc-if value="{{ bookingDone }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;padding:30px 10px">
+        <ion-icon name="checkmark-circle-outline" style="font-size:72px;color:#3E8E86"></ion-icon>
+        <h4 class="serif" style="font-size:26px;margin-top:14px;color:#fff">{{ t.bkDoneT }}</h4>
+        <p style="margin-top:10px;font-size:14px;color:#A9C8C3;line-height:1.6;font-weight:300">{{ t.bkDoneP1 }} <strong class="mono" style="color:#F0B33C">{{ bookingCode }}</strong> {{ t.bkDoneP2 }}</p>
+        <button onClick="{{ closeDrawer }}" style="margin-top:22px;width:100%;background:none;border:1px solid rgba(207,230,226,.2);color:#fff;padding:13px;border-radius:3px;font-weight:500;cursor:pointer" style-hover="border-color:#fff">{{ t.bkBack }}</button>
+      </div>
+    </sc-if>
+  </div>
+</aside>
+
+<!-- Cart drawer -->
+<aside style="position:fixed;top:0;right:0;bottom:0;z-index:100;width:min(430px,92vw);background:#062029;border-left:1px solid rgba(207,230,226,.14);transform:translateX({{ cartX }});transition:transform .42s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:22px;border-bottom:1px solid rgba(207,230,226,.1)">
+    <h3 class="serif" style="font-size:22px;color:#fff">{{ t.cartTitle }}</h3>
+    <button onClick="{{ closeDrawer }}" aria-label="Schließen" style="display:grid;place-items:center;width:36px;height:36px;border-radius:3px;border:1px solid rgba(207,230,226,.18);background:none;color:#fff;cursor:pointer" style-hover="border-color:#E8623A"><ion-icon name="close-outline" style="font-size:20px"></ion-icon></button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:22px">
+    <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ true }}">
+      <div style="text-align:center;padding:40px 10px;color:#7FA39D">
+        <ion-icon name="basket-outline" style="font-size:54px;opacity:.5"></ion-icon>
+        <p style="margin-top:14px;font-size:14px;font-weight:300">{{ t.cartEmptyTxt }}</p>
+      </div>
+    </sc-if>
+    <sc-for list="{{ cartItems }}" as="ci" hint-placeholder-count="0">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;border:1px solid rgba(207,230,226,.1);border-radius:3px;margin-bottom:10px">
+        <div style="display:grid;place-items:center;width:46px;height:46px;border-radius:3px;background:rgba(63,142,134,.18);flex:none"><ion-icon name="{{ ci.icon }}" style="font-size:22px;color:#CFE6E2"></ion-icon></div>
+        <div style="flex:1"><div style="font-size:14px;font-weight:600;color:#fff">{{ ci.name }}</div><div class="mono" style="font-size:13px;color:#E8623A">{{ ci.priceLabel }}</div></div>
+        <button onClick="{{ ci.remove }}" aria-label="Entfernen" style="background:none;border:none;color:#7FA39D;cursor:pointer" style-hover="color:#E8623A"><ion-icon name="trash-outline" style="font-size:18px"></ion-icon></button>
+      </div>
+    </sc-for>
+  </div>
+  <sc-if value="{{ cartHasItems }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:22px;border-top:1px solid rgba(207,230,226,.1)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><span class="mono" style="font-size:12px;letter-spacing:.1em;color:#9FBDB8;text-transform:uppercase">{{ t.cartSub }}</span><strong class="mono" style="font-size:20px;color:#fff">{{ cartSubtotal }}</strong></div>
+      <button onClick="{{ checkout }}" style="width:100%;background:#E8623A;color:#fff;border:none;padding:15px;border-radius:3px;font-weight:600;font-size:15px;cursor:pointer" style-hover="background:#f06f47">{{ t.cartCheckout }}</button>
+    </div>
+  </sc-if>
+</aside>
+
+<!-- Account drawer -->
+<aside style="position:fixed;top:0;right:0;bottom:0;z-index:100;width:min(430px,92vw);background:#062029;border-left:1px solid rgba(207,230,226,.14);transform:translateX({{ accountX }});transition:transform .42s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:22px;border-bottom:1px solid rgba(207,230,226,.1)">
+    <h3 class="serif" style="font-size:22px;color:#fff">{{ t.accTitle }}</h3>
+    <button onClick="{{ closeDrawer }}" aria-label="Schließen" style="display:grid;place-items:center;width:36px;height:36px;border-radius:3px;border:1px solid rgba(207,230,226,.18);background:none;color:#fff;cursor:pointer" style-hover="border-color:#E8623A"><ion-icon name="close-outline" style="font-size:20px"></ion-icon></button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:22px">
+    <div style="text-align:center;border:1px solid rgba(207,230,226,.14);border-radius:4px;padding:26px">
+      <div style="display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:rgba(63,142,134,.2);margin:0 auto"><ion-icon name="navigate" style="font-size:28px;color:#3E8E86"></ion-icon></div>
+      <h4 class="serif" style="margin-top:12px;font-size:22px;color:#fff">Captain Voyager</h4>
+      <div class="mono" style="display:inline-block;margin-top:8px;font-size:10px;letter-spacing:.16em;color:#0A1A1F;background:#F0B33C;padding:5px 12px;border-radius:2px">SIREN SILVER TIER</div>
+      <div class="mono" style="margin-top:16px;font-size:13px;color:#9FBDB8">LOYALTY · <strong style="color:#F0B33C;font-size:18px">{{ loyaltyPoints }} PTS</strong></div>
+    </div>
+    <div style="margin-top:20px;border:1px solid rgba(207,230,226,.12);border-radius:4px;padding:20px">
+      <h4 class="serif" style="font-size:18px;color:#fff;margin-bottom:14px">{{ t.accLogT }}</h4>
+      <form onSubmit="{{ logCatch }}" style="display:flex;flex-direction:column;gap:12px">
+        <select id="catch-species" style="width:100%;padding:11px 14px;border:1px solid rgba(207,230,226,.18);border-radius:3px;background:rgba(207,230,226,.04);color:#fff;font-family:'Hanken Grotesk';font-size:14px"><option>Bluefin Tuna</option><option>Arctic Cod</option><option>Giant Trevally</option><option>Mahi Mahi</option><option>Coastal Seabass</option></select>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <input id="catch-weight" type="number" min="0.1" step="0.1" value="4.5" aria-label="Gewicht kg" style="width:100%;padding:11px 14px;border:1px solid rgba(207,230,226,.18);border-radius:3px;background:rgba(207,230,226,.04);color:#fff;font-family:'Hanken Grotesk';font-size:14px">
+          <select id="catch-loc" aria-label="Ort" style="width:100%;padding:11px 14px;border:1px solid rgba(207,230,226,.18);border-radius:3px;background:rgba(207,230,226,.04);color:#fff;font-family:'Hanken Grotesk';font-size:14px"><option>Amalfi Coast</option><option>Lofoten</option><option>Maldives</option><option>Oahu</option><option>Tokyo Bay</option></select>
+        </div>
+        <button type="submit" style="background:#E8623A;color:#fff;border:none;padding:12px;border-radius:3px;font-weight:600;cursor:pointer;font-size:14px" style-hover="background:#f06f47">{{ t.accLogBtn }}</button>
+      </form>
+    </div>
+    <div style="margin-top:20px">
+      <h4 class="mono" style="font-size:11px;letter-spacing:.2em;color:#5C7E78;text-transform:uppercase;margin-bottom:12px">{{ t.accMyLog }}</h4>
+      <sc-if value="{{ noCatches }}" hint-placeholder-val="{{ true }}">
+        <p style="font-size:13px;color:#7FA39D;font-weight:300">{{ t.accNone }}</p>
+      </sc-if>
+      <sc-for list="{{ catches }}" as="c" hint-placeholder-count="0">
+        <div style="display:flex;align-items:center;gap:12px;padding:12px;border:1px solid rgba(207,230,226,.1);border-radius:3px;margin-bottom:10px">
+          <ion-icon name="fish" style="font-size:26px;color:#3E8E86;flex:none"></ion-icon>
+          <div style="flex:1"><div style="font-size:14px;font-weight:600;color:#fff">{{ c.species }}</div><div class="mono" style="font-size:11px;color:#7FA39D">{{ c.loc }}</div></div>
+          <span class="mono" style="font-weight:600;color:#F0B33C">{{ c.weight }} kg</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</aside>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1320,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = {
+    lang: 'EN',
+    langMenu: false,
+    mobileMenu: false,
+    audioOn: false,
+    ar: false,
+    arId: null,
+    arRot: 0,
+    arScale: 1,
+    drawer: null,
+    cart: [],
+    bookingDone: false,
+    bookingCode: '',
+    bookingPillar: 'boat',
+    bookingGuests: 2,
+    story: 1,
+    reelPct: 0,
+    dining: 'chef',
+    gf: 1,
+    gfDest: 'norway',
+    gfTarget: 'giant',
+    gfSkill: 'beginner',
+    filter: 'all',
+    selLoc: 'amalfi',
+    activeSec: 'hero',
+    loyalty: 350,
+    catches: [],
+    dive: 'd18',
+  };
+
+  LANGS = [
+    { code:'EN', name:'English' },
+    { code:'DE', name:'Deutsch' },
+    { code:'FR', name:'Français' },
+    { code:'ES', name:'Español' },
+    { code:'IT', name:'Italiano' },
+    { code:'VI', name:'Tiếng Việt' },
+  ];
+
+  // UI copy per language. EN is the master; missing languages fall back to EN.
+  // Mono "instrument" text (coordinates, photo stamps, tide readouts, log stamps) stays EN by design, like a real chart.
+  I18N = {
+    EN: {
+      navHubs:'Hubs', navChart:'Chart Key', navSea:'Sea→Table', navDive:'Dive', navStores:'Stores', navLog:'Logbook',
+      charter:'Charter a boat',
+      heroKicker:'Global ocean experience · est. 2024',
+      heroT1:'From the wild sea', heroT2a:'to your ', heroT2b:'table', heroT2c:'.',
+      heroSub:'Charter a vessel, hook the ocean’s giants, dive its living reefs — then watch our chefs plate your own catch. One brand for the entire ocean lifestyle, across twelve coastlines.',
+      heroCta1:'Chart your voyage', heroCta2:'How sea→table works',
+      stat1:'Global hubs', stat2:'Charter boats', stat3:'Dive sites', stat4:'Catches plated',
+      locKicker:'The chart · 12 soundings worldwide',
+      badgeBoats:'Boats', badgeDine:'Dine', badgeDive:'Dive',
+      openToday:'BOATS OPEN TODAY',
+      bookHub:'Book {hub} hub',
+      dragHint:'Drag to spin 360° · tap a hotspot',
+      pillKicker:'Chart key · 06 activities',
+      pillT1:'Everything the ocean', pillT2a:'offers, ', pillT2b:'under one keel', pillT2c:'.',
+      pillSub:'From the first cast to the last dive — six pillars, read like the legend on a sea chart.',
+      pillNew:'NEW', pillExplore:'Explore',
+      pillars:[
+        { title:'Boats & Fishing', desc:'Charter our fleet with licensed captains and pro guides to the best grounds.' },
+        { title:'Catch & Dine',    desc:'Sell it, self-cook it, or let our chefs plate your catch — sea to table.' },
+        { title:'Scuba Diving',    desc:'Guided reef & wreck dives, PADI courses and freediving for every level.' },
+        { title:'Gear Shop',       desc:'Premium rods, reels and lures tuned for each coastline.' },
+        { title:'Souvenirs',       desc:'Limited-edition keepsakes unique to every Rosi hub.' },
+        { title:'Water Fun',       desc:'Surf, parasailing, flyboard and family water sports.' },
+      ],
+      expKicker:'40°38′N 14°36′E · sea → table',
+      expT1:'Three soundings from', expT2a:'swell to ', expT2b:'supper', expT2c:'.',
+      sounding:'SOUNDING',
+      step1T:'Choose your vessel & guide', step1D:'Nimble speedboats to offshore trawlers, each with a licensed captain and radar-tracked grounds.',
+      step2T:'Hook the ocean giants', step2D:'Run deep trenches or calm reefs for tuna, cod and mahi-mahi. Play the reel to feel the tension.',
+      step3T:'Your catch, your cuisine', step3D:'Once docked, choose how to celebrate the haul:',
+      optSell:'Trade-in', optCook:'Self cook', optChef:'Chef',
+      stepCap1:'01 · Choose your vessel',
+      reelCap:'02 · Reel the prize', reelLanded:'02 · Fish on deck — landed!',
+      reelBtn:'Reel in', reelBtnDone:'Landed · to the galley…',
+      dining:{
+        sell:{ t:'Trade-In Credit', d:'Sell your catch back to the Rosi kitchen for tour credits.' },
+        cook:{ t:'Self-Cook Bay',  d:'Fire up our open seaside grills with custom Rosi recipes.' },
+        chef:{ t:'Chef’s Table (5-Course)', d:'Bespoke sushi and seaside charcoal grilling by Michelin chefs.' },
+      },
+      divKicker:'−05m to −40m · dive pillar · new',
+      divT1:'Past the surface lies', divT2a:'the ', divT2b:'other half', divT2c:'.',
+      divSub:'Glide over living coral gardens, explore historic wrecks and meet the ocean face to face — guided by PADI-certified dive masters at every hub.',
+      divF1T:'PADI courses', divF1D:'Discover Scuba to Divemaster.',
+      divF2T:'Reef & wreck', divF2D:'Guided day & night dives.',
+      divF3T:'Freediving', divF3D:'Breath-hold coaching.',
+      divF4T:'Safety first', divF4D:'Dive computers & insured ops.',
+      divCta1:'Book a dive', divCta2:'All activities', divSites:'DIVE SITES',
+      shopKicker:'Ship’s stores · gear & keepsakes',
+      shopT1:'Outfitted for ', shopTb:'every coast', shopTc:'.',
+      gfTitle:'Smart Gear Finder', gfSub:'Three soundings to your ideal setup',
+      gfQ1:'Where are you planning to fish?', gfQ2:'What is your main target category?', gfQ3:'What is your marine experience?',
+      gfBack:'Back', gfNext:'Next', gfSee:'See result', gfRestart:'Restart',
+      gfRec:'Recommended package', addToCart:'Add to cart',
+      filtAll:'All gear', filtRods:'Rods & reels', filtLures:'Pro lures', filtSouv:'Souvenirs',
+      conKicker:'Private channel 16 · vip desk',
+      conT1:'Bespoke yacht', conT2b:'journeys', conT2c:'.',
+      conSub:'For voyagers seeking ultimate seclusion — superyacht provisioning, helipads, underwater submersibles and Michelin chef partnerships, every coordinate tailored to your desire.',
+      conF1T:'Superyacht access', conF1D:'Multi-deck megayachts with helipads.',
+      conF2T:'Private dining', conF2D:'Bespoke menus by Michelin chefs.',
+      vipTitle:'Initiate VIP briefing',
+      fName:'Full name', fEmail:'Email', fHub:'Coastline hub', fReq:'Bespoke requirements',
+      vipBtn:'Submit VIP briefing',
+      vipAlert:'VIP briefing submitted — our concierge will reach out within 24h. (demo)',
+      aboutKicker:'Est. 2024 · the logbook',
+      aboutT1:'Not a charter. A ', aboutTb:'way of living', aboutTc:' with the sea.',
+      aboutSub:'Rosi is a global community that lives for the swell, the thrill of the pull, and the taste of the fresh catch. Founded by marine conservationists and professional yachtsmen, we partner with local fishing communities at twelve hubs to promote sustainable ocean recreation.',
+      aboutF1T:'100% sustainable', aboutF1D:'Strict local seasonal limits.',
+      aboutF2T:'Michelin chefs', aboutF2D:'World-class experts plate your trophy.',
+      aboutC1T:'The open seas', aboutC1S:'85 FLEETS · GLOBAL',
+      aboutC2T:'Seaside kitchens', aboutC2S:'FRESHNESS REDEFINED',
+      tl1:'First keel in the water — three founding hubs on the Amalfi Coast, Lofoten and the Maldives.',
+      tl2:'The chart fills in — twelve coastlines, 85 boats and the first sea→table kitchens.',
+      tl3:'The dive pillar surfaces — 40 reef and wreck sites, PADI schools at every hub.',
+      logsKicker:'Radio log · channel 16',
+      logsT1:'Voices from', logsT2a:'the ', logsT2b:'deck', logsT2c:'.',
+      logsBadge:'4.9 / 2,140 logged voyages',
+      logQuotes:[
+        'Hooked a 21-kilo cod at dawn, ate it as sashimi by noon. The chef bowed to the fish before he cut it.',
+        'My daughter logged her first dive and her first trevally in the same afternoon. She has not stopped talking since.',
+        'Squid lamps on the horizon, grilled catch on the sand, a captain who knew every current by name. Phú Quốc rewired me.',
+      ],
+      footTag:'Global ocean experience & sea-to-table lifestyle brand. Charting twelve coastlines since 2024.',
+      footNav:'Navigate', footHubs:'Hubs', footJoin:'Join the sea log',
+      footHome:'Home', footSea:'Sea → table', footStores:'Ship’s stores',
+      footNews:'Seasonal fishing forecasts and recipe releases.',
+      bkTitle:'Ocean booking desk', bkPillar:'Marine pillar', bkDate:'Voyage date', bkGuests:'Voyagers', bkTotal:'Estimated total', bkConfirm:'Confirm reservation',
+      bkOptBoat:'Boats & fishing charter', bkOptDining:'Catch & dine experience', bkOptDiving:'Scuba diving & freediving', bkOptWater:'Water fun & sports',
+      bkDoneT:'Voyage scheduled', bkDoneP1:'Reservation code', bkDoneP2:'is logged. Watch for the captain’s briefing email.', bkBack:'Back to site',
+      cartTitle:'Your gear cart', cartEmptyTxt:'Your cart is empty. Explore the stores or run the Gear Finder.', cartSub:'Subtotal', cartCheckout:'Checkout order',
+      accTitle:'My catches & loyalty', accLogT:'Log a sea catch', accLogBtn:'Log catch · +50 pts', accMyLog:'My caught log', accNone:'No catches logged yet. Reel one in above.',
+      arAdd:'Add',
+    },
+    VI: {
+      navHubs:'Điểm đến', navChart:'Chú giải', navSea:'Biển→Bàn ăn', navDive:'Lặn biển', navStores:'Cửa hàng', navLog:'Nhật ký',
+      charter:'Thuê thuyền',
+      heroKicker:'Trải nghiệm đại dương toàn cầu · từ 2024',
+      heroT1:'Từ biển khơi hoang dã', heroT2a:'đến ', heroT2b:'bàn ăn', heroT2c:' của bạn.',
+      heroSub:'Thuê thuyền, săn những gã khổng lồ của đại dương, lặn giữa rạn san hô sống — rồi xem đầu bếp của chúng tôi chế biến chính mẻ cá bạn câu được. Một thương hiệu cho trọn phong cách sống đại dương, trải khắp mười hai bờ biển.',
+      heroCta1:'Vạch hải trình của bạn', heroCta2:'Biển→bàn ăn hoạt động ra sao',
+      stat1:'Điểm đến toàn cầu', stat2:'Thuyền cho thuê', stat3:'Điểm lặn', stat4:'Mẻ cá lên bàn',
+      locKicker:'Hải đồ · 12 điểm đo toàn cầu',
+      badgeBoats:'Thuyền', badgeDine:'Ẩm thực', badgeDive:'Lặn',
+      openToday:'THUYỀN MỞ CHỖ HÔM NAY',
+      bookHub:'Đặt hub {hub}',
+      dragHint:'Kéo để xoay 360° · chạm vào điểm sáng',
+      pillKicker:'Chú giải hải đồ · 06 hoạt động',
+      pillT1:'Mọi điều đại dương', pillT2a:'ban tặng, ', pillT2b:'dưới một sống thuyền', pillT2c:'.',
+      pillSub:'Từ cú quăng cần đầu tiên đến hơi lặn cuối cùng — sáu trụ cột, đọc như chú giải trên một tấm hải đồ.',
+      pillNew:'MỚI', pillExplore:'Khám phá',
+      pillars:[
+        { title:'Thuyền & Câu cá', desc:'Thuê đội thuyền với thuyền trưởng có bằng và hướng dẫn viên chuyên nghiệp tới những ngư trường tốt nhất.' },
+        { title:'Câu & Thưởng thức', desc:'Bán lại, tự nướng, hoặc để đầu bếp của chúng tôi chế biến mẻ cá của bạn — từ biển lên bàn ăn.' },
+        { title:'Lặn Scuba', desc:'Lặn rạn & xác tàu có hướng dẫn, khóa học PADI và lặn tự do cho mọi trình độ.' },
+        { title:'Cửa hàng đồ câu', desc:'Cần, máy và mồi câu cao cấp, tinh chỉnh cho từng vùng biển.' },
+        { title:'Quà lưu niệm', desc:'Vật phẩm phiên bản giới hạn, riêng có ở mỗi hub Rosi.' },
+        { title:'Vui chơi mặt nước', desc:'Lướt sóng, dù kéo, flyboard và thể thao nước cho cả gia đình.' },
+      ],
+      expKicker:'40°38′N 14°36′E · biển → bàn ăn',
+      expT1:'Ba lần đo sâu từ', expT2a:'con sóng tới ', expT2b:'bữa tối', expT2c:'.',
+      sounding:'LẦN ĐO',
+      step1T:'Chọn thuyền & người dẫn đường', step1D:'Từ xuồng cao tốc nhanh nhẹn đến tàu đánh bắt xa bờ, mỗi chiếc đều có thuyền trưởng có bằng và ngư trường theo dõi bằng radar.',
+      step2T:'Săn những gã khổng lồ đại dương', step2D:'Ra rãnh sâu hay rạn êm để săn cá ngừ, cá tuyết và mahi-mahi. Bấm cuộn dây để cảm nhận độ căng.',
+      step3T:'Cá của bạn, món ăn của bạn', step3D:'Khi cập bến, chọn cách ăn mừng thành quả:',
+      optSell:'Bán lại', optCook:'Tự nướng', optChef:'Đầu bếp',
+      stepCap1:'01 · Chọn thuyền của bạn',
+      reelCap:'02 · Cuộn dây săn cá', reelLanded:'02 · Cá đã lên boong!',
+      reelBtn:'Cuộn dây', reelBtnDone:'Đã bắt được · vào bếp thôi…',
+      dining:{
+        sell:{ t:'Đổi lấy tín dụng', d:'Bán lại mẻ cá cho bếp Rosi để nhận tín dụng cho các tour.' },
+        cook:{ t:'Vịnh tự nướng', d:'Nhóm lửa bếp nướng bờ biển với công thức riêng của Rosi.' },
+        chef:{ t:'Bàn tiệc đầu bếp (5 món)', d:'Sushi thửa riêng và than hồng bờ biển bởi đầu bếp Michelin.' },
+      },
+      divKicker:'−05m đến −40m · trụ cột lặn · mới',
+      divT1:'Qua khỏi mặt nước là', divT2a:'', divT2b:'nửa còn lại', divT2c:' của thế giới.',
+      divSub:'Lướt trên những vườn san hô sống, khám phá xác tàu lịch sử và chạm mặt đại dương — dưới sự dẫn dắt của dive master chứng chỉ PADI tại mọi hub.',
+      divF1T:'Khóa học PADI', divF1D:'Từ Discover Scuba đến Divemaster.',
+      divF2T:'Rạn & xác tàu', divF2D:'Lặn ngày & đêm có hướng dẫn.',
+      divF3T:'Lặn tự do', divF3D:'Huấn luyện nín thở chuyên sâu.',
+      divF4T:'An toàn trước hết', divF4D:'Máy tính lặn & vận hành có bảo hiểm.',
+      divCta1:'Đặt chuyến lặn', divCta2:'Tất cả hoạt động', divSites:'ĐIỂM LẶN',
+      shopKicker:'Kho tàu · đồ nghề & kỷ vật',
+      shopT1:'Sẵn sàng cho ', shopTb:'mọi bờ biển', shopTc:'.',
+      gfTitle:'Trợ lý chọn đồ câu', gfSub:'Ba lần đo sâu tới bộ đồ lý tưởng của bạn',
+      gfQ1:'Bạn định câu ở đâu?', gfQ2:'Mục tiêu chính của bạn là gì?', gfQ3:'Kinh nghiệm đi biển của bạn?',
+      gfBack:'Quay lại', gfNext:'Tiếp theo', gfSee:'Xem kết quả', gfRestart:'Làm lại',
+      gfRec:'Gói đề xuất', addToCart:'Thêm vào giỏ',
+      filtAll:'Tất cả', filtRods:'Cần & máy', filtLures:'Mồi câu pro', filtSouv:'Lưu niệm',
+      conKicker:'Kênh riêng 16 · quầy vip',
+      conT1:'Hải trình du thuyền', conT2b:'thửa riêng', conT2c:'.',
+      conSub:'Dành cho những lữ khách tìm kiếm sự biệt lập tuyệt đối — hậu cần siêu du thuyền, sân đỗ trực thăng, tàu lặn ngầm và đầu bếp Michelin đối tác, từng tọa độ đo ni đóng giày theo ý bạn.',
+      conF1T:'Siêu du thuyền', conF1D:'Megayacht nhiều tầng với sân đỗ trực thăng.',
+      conF2T:'Tiệc riêng tư', conF2D:'Thực đơn thửa riêng bởi đầu bếp Michelin.',
+      vipTitle:'Bắt đầu briefing VIP',
+      fName:'Họ và tên', fEmail:'Email', fHub:'Hub bờ biển', fReq:'Yêu cầu riêng',
+      vipBtn:'Gửi briefing VIP',
+      vipAlert:'Đã gửi briefing VIP — concierge sẽ liên hệ trong vòng 24h. (demo)',
+      aboutKicker:'Từ 2024 · cuốn nhật ký hải trình',
+      aboutT1:'Không chỉ là thuê thuyền. Một ', aboutTb:'lối sống', aboutTc:' cùng biển cả.',
+      aboutSub:'Rosi là cộng đồng toàn cầu sống vì con sóng, vì cảm giác giật cần, và vì hương vị mẻ cá tươi. Được sáng lập bởi các nhà bảo tồn biển và tay đua thuyền buồm chuyên nghiệp, chúng tôi hợp tác với cộng đồng ngư dân địa phương tại mười hai hub để lan tỏa giải trí đại dương bền vững.',
+      aboutF1T:'100% bền vững', aboutF1D:'Giới hạn mùa vụ nghiêm ngặt theo địa phương.',
+      aboutF2T:'Đầu bếp Michelin', aboutF2D:'Chuyên gia đẳng cấp thế giới chế biến chiến lợi phẩm của bạn.',
+      aboutC1T:'Biển khơi rộng mở', aboutC1S:'85 ĐỘI THUYỀN · TOÀN CẦU',
+      aboutC2T:'Bếp bên bờ biển', aboutC2S:'ĐỊNH NGHĨA LẠI ĐỘ TƯƠI',
+      tl1:'Sống thuyền đầu tiên chạm nước — ba hub sáng lập tại Amalfi, Lofoten và Maldives.',
+      tl2:'Tấm hải đồ dần kín — mười hai bờ biển, 85 thuyền và những căn bếp biển→bàn ăn đầu tiên.',
+      tl3:'Trụ cột lặn trồi lên — 40 điểm rạn và xác tàu, trường PADI tại mọi hub.',
+      logsKicker:'Nhật ký vô tuyến · kênh 16',
+      logsT1:'Tiếng nói từ', logsT2a:'boong ', logsT2b:'tàu', logsT2c:'.',
+      logsBadge:'4.9 / 2.140 hải trình đã ghi',
+      logQuotes:[
+        'Câu được con cá tuyết 21 ký lúc bình minh, trưa đã thành sashimi. Đầu bếp cúi chào con cá trước khi đặt dao.',
+        'Con gái tôi ghi nhận chuyến lặn đầu tiên và con cá trevally đầu tiên trong cùng một buổi chiều. Từ đó con bé nói mãi không thôi.',
+        'Đèn câu mực phía chân trời, cá nướng trên cát, và một thuyền trưởng thuộc tên từng con nước. Phú Quốc đã thay đổi tôi.',
+      ],
+      footTag:'Thương hiệu trải nghiệm đại dương & phong cách sống biển→bàn ăn toàn cầu. Vẽ hải đồ mười hai bờ biển từ 2024.',
+      footNav:'Điều hướng', footHubs:'Điểm đến', footJoin:'Theo dõi Sea Log',
+      footHome:'Trang chủ', footSea:'Biển → bàn ăn', footStores:'Kho tàu',
+      footNews:'Dự báo mùa câu và công thức món mới theo mùa.',
+      bkTitle:'Quầy đặt chỗ đại dương', bkPillar:'Trụ cột hải dương', bkDate:'Ngày khởi hành', bkGuests:'Số thủy thủ', bkTotal:'Tạm tính', bkConfirm:'Xác nhận đặt chỗ',
+      bkOptBoat:'Thuyền & câu cá', bkOptDining:'Trải nghiệm câu & thưởng thức', bkOptDiving:'Lặn scuba & lặn tự do', bkOptWater:'Vui chơi & thể thao nước',
+      bkDoneT:'Hải trình đã lên lịch', bkDoneP1:'Mã đặt chỗ', bkDoneP2:'đã được ghi nhận. Chờ email briefing từ thuyền trưởng nhé.', bkBack:'Về trang chính',
+      cartTitle:'Giỏ đồ nghề của bạn', cartEmptyTxt:'Giỏ hàng đang trống. Ghé kho tàu hoặc chạy Trợ lý chọn đồ câu nhé.', cartSub:'Tạm tính', cartCheckout:'Thanh toán',
+      accTitle:'Mẻ cá & điểm thưởng', accLogT:'Ghi một mẻ cá', accLogBtn:'Ghi mẻ cá · +50 điểm', accMyLog:'Nhật ký mẻ cá', accNone:'Chưa có mẻ cá nào. Cuộn dây ngay ở trên nhé.',
+      arAdd:'Thêm',
+    },
+  };
+
+  LOCATIONS = {
+    amalfi:   { name:'Amalfi Coast', short:'Amalfi', country:'Italy', coord:"40°38′N 14°36′E", slots:4, shot:'AMALFI CLIFF HARBOUR', scene:'radial-gradient(120% 90% at 76% 8%,rgba(240,179,60,.18),transparent 55%),linear-gradient(165deg,#10556A 0%,#062330 80%)', desc:'Classic Mediterranean fishing and dining beneath towering cliffs.', temp:24, wind:'8KN SW', tide:'RISING', vis:18 },
+    norway:   { name:'Lofoten', short:'Lofoten', country:'Norway', coord:"68°09′N 13°36′E", slots:3, shot:'ARCTIC FJORD FLEET', scene:'radial-gradient(120% 90% at 70% 6%,rgba(159,189,216,.16),transparent 55%),linear-gradient(165deg,#14405E 0%,#081B2C 80%)', desc:'Arctic cod runs and dramatic fjord waters for the bold angler.', temp:9, wind:'16KN NE', tide:'FALLING', vis:25 },
+    maldives: { name:'Maldives', short:'Maldives', country:'Maldives', coord:"03°12′N 73°13′E", slots:6, shot:'TURQUOISE ATOLL', scene:'radial-gradient(120% 90% at 74% 8%,rgba(240,179,60,.14),transparent 55%),linear-gradient(165deg,#0A6B74 0%,#043540 80%)', desc:'Turquoise reefs, wreck dives and tropical game fishing year round.', temp:29, wind:'6KN E', tide:'HIGH SLACK', vis:32 },
+    hawaii:   { name:'Oahu', short:'Oahu', country:'Hawaii · USA', coord:"21°28′N 157°59′W", slots:5, shot:'VOLCANIC SURF COAST', scene:'radial-gradient(120% 90% at 74% 8%,rgba(232,98,58,.16),transparent 55%),linear-gradient(165deg,#0D5A52 0%,#05262B 80%)', desc:'Big-blue marlin grounds, surf breaks and volcanic coastlines.', temp:26, wind:'14KN NE', tide:'RISING', vis:22 },
+    tokyo:    { name:'Tokyo Bay', short:'Tokyo', country:'Japan', coord:"35°27′N 139°46′E", slots:2, shot:'HARBOUR NIGHT LIGHTS', scene:'radial-gradient(120% 90% at 72% 8%,rgba(243,175,216,.12),transparent 55%),linear-gradient(165deg,#1B3A5C 0%,#0A1626 80%)', desc:'Urban harbour charters and the freshest sashimi-grade catch.', temp:21, wind:'10KN S', tide:'FALLING', vis:12 },
+    santorini:{ name:'Santorini', short:'Santorini', country:'Greece', coord:"36°24′N 25°26′E", slots:3, shot:'CALDERA VIEW', scene:'radial-gradient(120% 90% at 76% 8%,rgba(240,179,60,.16),transparent 55%),linear-gradient(165deg,#14507A 0%,#082031 80%)', desc:'Caldera-edge charters, volcanic reef dives and sunset dining above the Aegean.', temp:23, wind:'12KN N', tide:'RISING', vis:20 },
+    bali:     { name:'Uluwatu', short:'Uluwatu', country:'Bali · Indonesia', coord:"08°50′S 115°05′E", slots:4, shot:'ULUWATU CLIFFS', scene:'radial-gradient(120% 90% at 74% 8%,rgba(240,179,60,.15),transparent 55%),linear-gradient(165deg,#0E5F55 0%,#052A28 80%)', desc:'Cliff-top temples, reef breaks and spice-grilled catch on Indonesian sands.', temp:28, wind:'9KN SE', tide:'FALLING', vis:24 },
+    cairns:   { name:'Cairns Reef', short:'Cairns', country:'Australia', coord:"16°55′S 145°46′E", slots:5, shot:'GREAT BARRIER REEF', scene:'radial-gradient(120% 90% at 74% 8%,rgba(63,142,134,.22),transparent 55%),linear-gradient(165deg,#086D78 0%,#03323C 80%)', desc:'The Great Barrier Reef — grander game fishing and world-class dive walls.', temp:27, wind:'11KN SE', tide:'HIGH SLACK', vis:28 },
+    cabo:     { name:'Cabo San Lucas', short:'Cabo', country:'Mexico', coord:"22°53′N 109°55′W", slots:4, shot:'DESERT SEA ARCH', scene:'radial-gradient(120% 90% at 74% 8%,rgba(232,98,58,.26),transparent 55%),linear-gradient(165deg,#6B4A2A 0%,#241208 82%)', desc:'Marlin capital of the Pacific, where desert cliffs meet a striking sea.', temp:25, wind:'13KN W', tide:'RISING', vis:19 },
+    algarve:  { name:'Algarve', short:'Algarve', country:'Portugal', coord:"37°05′N 8°40′W", slots:3, shot:'GOLDEN GROTTOES', scene:'radial-gradient(120% 90% at 74% 8%,rgba(240,179,60,.2),transparent 55%),linear-gradient(165deg,#0F5D78 0%,#062B3A 80%)', desc:'Golden grottoes, Atlantic swells and slow seafood afternoons in Portugal.', temp:19, wind:'15KN NW', tide:'FALLING', vis:14 },
+    zanzibar: { name:'Zanzibar', short:'Zanzibar', country:'Tanzania', coord:"06°10′S 39°12′E", slots:2, shot:'DHOW SAILS AT DUSK', scene:'radial-gradient(120% 90% at 74% 8%,rgba(240,179,60,.14),transparent 55%),linear-gradient(165deg,#0C6A5E 0%,#04302B 80%)', desc:'Dhow sails, warm Swahili currents and coral gardens off East Africa.', temp:28, wind:'7KN S', tide:'RISING', vis:26 },
+    phuquoc:  { name:'Phú Quốc', short:'Phú Quốc', country:'Vietnam', coord:"10°13′N 103°57′E", slots:4, shot:'SQUID LAMPS AT DUSK', scene:'radial-gradient(120% 90% at 74% 8%,rgba(240,179,60,.16),transparent 55%),linear-gradient(165deg,#0E6472 0%,#053038 80%)', desc:'Squid-lamp evenings and island-hopping charters in Vietnam’s turquoise south.', temp:29, wind:'5KN SW', tide:'HIGH SLACK', vis:21 },
+  };
+
+  HUB_XY = {
+    amalfi:   { lat:40.6,  lon:14.6 },
+    norway:   { lat:68.2,  lon:13.6 },
+    maldives: { lat:3.2,   lon:73.2 },
+    hawaii:   { lat:21.5,  lon:-158.0 },
+    tokyo:    { lat:35.5,  lon:139.8 },
+    santorini:{ lat:36.4,  lon:25.4 },
+    bali:     { lat:-8.8,  lon:115.1 },
+    cairns:   { lat:-16.9, lon:145.8 },
+    cabo:     { lat:22.9,  lon:-109.9 },
+    algarve:  { lat:37.1,  lon:-8.7 },
+    zanzibar: { lat:-6.2,  lon:39.2 },
+    phuquoc:  { lat:10.2,  lon:104.0 },
+  };
+
+  // detailed coastlines [lon,lat] for the wireframe globe
+  COAST = [
+    // North & Central America
+    [[-166,68],[-156,71],[-141,70],[-130,70],[-120,69],[-110,68],[-95,67],[-85,66],[-82,60],[-75,62],[-68,58],[-64,60],[-60,55],[-66,50],[-65,45],[-70,43],[-74,40],[-76,35],[-81,31],[-80,26],[-83,29],[-89,29],[-94,29],[-97,26],[-97,21],[-94,18],[-90,21],[-87,21],[-88,16],[-83,15],[-83,9],[-78,7],[-81,8],[-85,11],[-91,14],[-95,16],[-105,20],[-110,24],[-114,30],[-117,33],[-120,34],[-122,37],[-124,40],[-124,48],[-128,51],[-132,54],[-135,58],[-140,60],[-146,61],[-151,59],[-156,57],[-160,56],[-165,60]],
+    // South America
+    [[-78,7],[-72,12],[-68,11],[-60,8],[-53,6],[-50,0],[-44,-3],[-35,-6],[-35,-9],[-38,-13],[-39,-18],[-41,-22],[-46,-24],[-48,-26],[-52,-32],[-56,-35],[-58,-39],[-62,-41],[-65,-45],[-67,-50],[-68,-55],[-71,-54],[-73,-50],[-74,-46],[-73,-42],[-71,-37],[-70,-30],[-70,-23],[-70,-18],[-76,-14],[-79,-8],[-81,-5],[-80,0],[-78,3]],
+    // Africa
+    [[-6,35],[0,37],[10,37],[11,34],[15,32],[20,32],[25,32],[32,31],[34,28],[35,24],[37,21],[39,15],[43,11],[48,11],[51,12],[44,4],[41,-2],[39,-7],[36,-14],[35,-20],[33,-26],[28,-33],[22,-34],[18,-34],[15,-28],[12,-18],[13,-11],[9,-2],[9,4],[6,4],[0,6],[-5,5],[-8,4],[-13,8],[-17,12],[-17,15],[-16,20],[-13,26],[-10,30],[-6,33]],
+    // Europe
+    [[-9,37],[-7,43],[-2,44],[-2,47],[-5,48],[-2,50],[3,51],[6,53],[8,54],[8,57],[12,56],[11,59],[6,58],[5,62],[12,65],[16,68],[21,70],[28,71],[35,69],[41,67],[37,64],[31,62],[28,60],[23,59],[19,57],[14,54],[12,54],[14,45],[19,42],[16,40],[18,38],[22,37],[24,38],[26,40],[29,41],[33,42],[36,45],[40,47],[38,44],[33,43],[28,41],[26,39],[23,36],[15,37],[10,38],[4,40],[0,39],[-2,37],[-6,36]],
+    // Asia
+    [[29,41],[33,37],[36,36],[36,33],[34,28],[35,24],[39,16],[43,12],[48,14],[53,17],[57,20],[59,23],[56,26],[51,28],[48,30],[52,26],[57,26],[62,25],[66,25],[68,23],[70,21],[73,16],[77,8],[80,13],[82,17],[87,21],[90,22],[92,21],[94,16],[98,10],[100,6],[103,1],[103,6],[100,13],[99,17],[105,10],[109,12],[109,15],[106,20],[110,21],[113,22],[117,24],[120,28],[122,31],[120,35],[122,37],[125,39],[121,39],[122,40],[128,42],[132,43],[135,45],[141,49],[142,54],[143,50],[147,54],[153,59],[157,62],[162,60],[170,62],[179,65],[176,70],[168,70],[158,71],[148,72],[138,72],[128,73],[118,74],[108,74],[98,73],[88,70],[78,72],[68,73],[58,70],[48,68],[40,66],[36,60],[40,55],[38,47]],
+    // Australia
+    [[114,-22],[113,-25],[115,-32],[118,-35],[124,-33],[129,-32],[132,-32],[135,-35],[138,-35],[140,-38],[145,-38],[150,-37],[153,-30],[153,-27],[152,-24],[149,-20],[146,-19],[143,-14],[142,-11],[139,-17],[136,-12],[132,-12],[130,-13],[126,-14],[122,-18],[117,-21]],
+    // Greenland
+    [[-45,60],[-42,62],[-32,68],[-22,70],[-20,74],[-18,78],[-30,82],[-45,83],[-58,80],[-68,76],[-60,72],[-55,69],[-53,65],[-48,61]],
+    // Britain & Ireland
+    [[-5,50],[1,51],[0,53],[-2,56],[-4,58],[-6,56],[-5,53],[-6,50]],
+    [[-10,52],[-6,52],[-6,55],[-10,54]],
+    // Iceland
+    [[-22,64],[-15,64],[-14,66],[-20,66]],
+    // Japan
+    [[130,31],[132,33],[136,34],[140,35],[141,38],[141,41],[143,42],[145,44],[142,45],[140,42],[137,37],[133,35],[130,33]],
+    // Madagascar
+    [[44,-25],[47,-25],[50,-16],[49,-12],[45,-16],[43,-21]],
+    // Sri Lanka
+    [[80,6],[82,7],[81,9],[79,8]],
+    // Borneo
+    [[109,1],[113,4],[117,7],[119,1],[116,-3],[110,-2]],
+    // Sumatra & Java
+    [[95,5],[99,3],[103,-1],[106,-5],[102,-4],[97,2]],
+    [[105,-6],[110,-7],[114,-8],[110,-8],[106,-7]],
+    // New Guinea
+    [[131,-1],[136,-2],[141,-3],[147,-6],[150,-10],[144,-8],[138,-7],[132,-4]],
+    // Philippines
+    [[120,18],[122,17],[124,13],[125,9],[122,10],[121,14],[120,16]],
+    // New Zealand
+    [[173,-35],[177,-38],[174,-42],[170,-46],[167,-46],[170,-42],[172,-38]],
+    // Cuba
+    [[-84,22],[-77,20],[-74,20],[-80,23]],
+    // Tasmania
+    [[145,-41],[148,-41],[147,-43],[145,-42]],
+  ];
+
+  PILLARS = [
+    { key:'K-01', icon:'boat-outline',       title:'Boats & Fishing', desc:'Charter our fleet with licensed captains and pro guides to the best grounds.', href:'#experiences', isNew:false },
+    { key:'K-02', icon:'restaurant-outline', title:'Catch & Dine',    desc:'Sell it, self-cook it, or let our chefs plate your catch — sea to table.', href:'#experiences', isNew:false },
+    { key:'K-03', icon:'water-outline',      title:'Scuba Diving',    desc:'Guided reef & wreck dives, PADI courses and freediving for every level.', href:'#diving', isNew:true },
+    { key:'K-04', icon:'compass-outline',    title:'Gear Shop',       desc:'Premium rods, reels and lures tuned for each coastline.', href:'#shop', isNew:false },
+    { key:'K-05', icon:'gift-outline',       title:'Souvenirs',       desc:'Limited-edition keepsakes unique to every Rosi hub.', href:'#shop', isNew:false },
+    { key:'K-06', icon:'sunny-outline',      title:'Water Fun',       desc:'Surf, parasailing, flyboard and family water sports.', href:'#diving', isNew:false },
+  ];
+
+  PRODUCTS = [
+    { id:'r1', name:'Abyss Pro Rod 7ft',  cat:'rods',       icon:'fish-outline',     price:189, shot:'ROD' },
+    { id:'r2', name:'Tideline Spin Reel', cat:'rods',       icon:'sync-outline',     price:149, shot:'REEL' },
+    { id:'l1', name:'Coral Jig Lure Set', cat:'lures',      icon:'flash-outline',    price:39,  shot:'LURE' },
+    { id:'l2', name:'Deep Troll Spoons',  cat:'lures',      icon:'magnet-outline',   price:29,  shot:'SPOON' },
+    { id:'d1', name:'Reef Mask & Snorkel',cat:'rods',       icon:'glasses-outline',  price:89,  shot:'MASK' },
+    { id:'s1', name:'Amalfi Ceramic Tile',cat:'souvenirs',  icon:'gift-outline',     price:24,  shot:'TILE',  canAR:true },
+    { id:'s2', name:'Rosi Captain Cap',   cat:'souvenirs',  icon:'shirt-outline',    price:34,  shot:'CAP',   canAR:true },
+    { id:'s3', name:'Lofoten Wave Print', cat:'souvenirs',  icon:'image-outline',    price:45,  shot:'PRINT', canAR:true },
+  ];
+
+  GF_RESULTS = {
+    'norway|giant':   { name:'Arctic Apex Kit', desc:'Heavy boat rod, 12000 reel and deep jigs built for monster cod in cold currents.', price:329 },
+    'maldives|medium':{ name:'Reef Runner Set', desc:'Light-action spin combo with coral jigs — perfect for trevally and snapper.', price:219 },
+    'amalfi|light':   { name:'Coastal Finesse Combo', desc:'Sensitive seabass rod with squid lures for relaxed Mediterranean days.', price:179 },
+  };
+
+  DIVE_DEPTHS = [
+    { id:'d5',  m:'−5M',  shot:'SNORKELLER OVER CORAL GARDEN', cap:'CORAL GARDENS · SNORKEL & DISCOVERY', scene:'linear-gradient(180deg,#12878C,#0a5a62)' },
+    { id:'d18', m:'−18M', shot:'DIVER OVER CORAL REEF',        cap:'REEF DIVES · TURTLES & RAYS',        scene:'linear-gradient(180deg,#0c6b70,#063f4a)' },
+    { id:'d30', m:'−30M', shot:'WRECK LINE IN BLUE WATER',     cap:'WRECK LINES · HISTORY IN THE BLUE',  scene:'linear-gradient(180deg,#07444e,#052a34)' },
+    { id:'d40', m:'−40M', shot:'ABYSS WALL WITH PELAGICS',     cap:'ABYSS WALLS · PELAGIC ENCOUNTERS',   scene:'linear-gradient(180deg,#052e38,#03161e)' },
+  ];
+
+  LOGS = [
+    { stamp:'LOG 114 · JUN 2026', coord:'68°09′N', quote:'Hooked a 21-kilo cod at dawn, ate it as sashimi by noon. The chef bowed to the fish before he cut it.', name:'Elena Marchetti', role:'LOFOTEN VOYAGE · 3 DAYS', rating:'5.0', initials:'EM' },
+    { stamp:'LOG 097 · MAY 2026', coord:'03°12′N', quote:'My daughter logged her first dive and her first trevally in the same afternoon. She has not stopped talking since.', name:'Daniel Okafor', role:'MALDIVES FAMILY CHARTER', rating:'4.9', initials:'DO' },
+    { stamp:'LOG 082 · APR 2026', coord:'10°13′N', quote:'Squid lamps on the horizon, grilled catch on the sand, a captain who knew every current by name. Phú Quốc rewired me.', name:'Linh Trần', role:'PHÚ QUỐC SEA→TABLE', rating:'5.0', initials:'LT' },
+  ];
+
+  componentDidMount() {
+    this.startSonar();
+    this.startGlobe();
+    this.initScrollSpy();
+    this.initGsapScroll();
+    this.runCounters();
+    this.makeBubbles();
+    this.initCursor();
+    this.initCurtain();
+    this.initARDrag();
+  }
+  componentWillUnmount() {
+    if (this._fxCheckT) clearTimeout(this._fxCheckT);
+    if (window.ScrollTrigger) { try { ScrollTrigger.getAll().forEach(st => st.kill()); } catch(e){} }
+    if (this._landT) clearTimeout(this._landT);
+    if (this._raf) cancelAnimationFrame(this._raf);
+    if (this._rafGlobe) cancelAnimationFrame(this._rafGlobe);
+    if (this._onMove) window.removeEventListener('pointermove', this._onMove);
+    if (this._audio) { try { this._audio.ctx.close(); } catch(e){} }
+  }
+
+  initCurtain() {
+    const c = document.getElementById('rosi-curtain');
+    if (!c) return;
+    setTimeout(() => {
+      c.style.transition = 'transform .9s cubic-bezier(.76,0,.24,1)';
+      c.style.transform = 'translateY(-100%)';
+      setTimeout(() => { c.style.display = 'none'; }, 950);
+    }, 620);
+  }
+
+  initCursor() {
+    if (window.matchMedia && window.matchMedia('(hover:none)').matches) return;
+    const wrap = document.getElementById('rosi-cursor');
+    const v = document.getElementById('rc-vline');
+    const h = document.getElementById('rc-hline');
+    const dot = document.getElementById('rc-dot');
+    const read = document.getElementById('rc-read');
+    if (!wrap) return;
+    // base coords per hub-ish feel; depth grows as you scroll down the page
+    this._onMove = (e) => {
+      wrap.style.opacity = '1';
+      v.style.left = e.clientX + 'px';
+      h.style.top = e.clientY + 'px';
+      dot.style.left = e.clientX + 'px';
+      dot.style.top = e.clientY + 'px';
+      read.style.left = e.clientX + 'px';
+      read.style.top = e.clientY + 'px';
+      const docH = Math.max(1, document.body.scrollHeight - window.innerHeight);
+      const scrolled = window.scrollY / docH; // 0..1
+      const depth = Math.round(scrolled * 40 + (e.clientY / window.innerHeight) * 6);
+      const latMin = Math.abs(Math.round((e.clientY / window.innerHeight) * 59));
+      const lonMin = Math.abs(Math.round((e.clientX / window.innerWidth) * 59));
+      const lat = 40 + Math.round((1 - e.clientY / window.innerHeight) * 20);
+      read.textContent = `${lat}°${String(latMin).padStart(2,'0')}′N · −${depth}M · ${String(lonMin).padStart(2,'0')}′E`;
+    };
+    window.addEventListener('pointermove', this._onMove);
+    window.addEventListener('pointerleave', () => { wrap.style.opacity = '0'; });
+  }
+
+  toggleAudioEngine(on) {
+    try {
+      if (on) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AC();
+        // filtered noise = ocean wash
+        const bufferSize = 2 * ctx.sampleRate;
+        const noiseBuf = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const out = noiseBuf.getChannelData(0);
+        for (let i=0;i<bufferSize;i++) out[i] = Math.random()*2-1;
+        const noise = ctx.createBufferSource();
+        noise.buffer = noiseBuf; noise.loop = true;
+        const lp = ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=520;
+        const gain = ctx.createGain(); gain.gain.value=0.0;
+        // slow swell LFO on gain
+        const lfo = ctx.createOscillator(); lfo.frequency.value=0.12;
+        const lfoGain = ctx.createGain(); lfoGain.gain.value=0.05;
+        lfo.connect(lfoGain); lfoGain.connect(gain.gain);
+        noise.connect(lp); lp.connect(gain); gain.connect(ctx.destination);
+        noise.start(); lfo.start();
+        gain.gain.linearRampToValueAtTime(0.14, ctx.currentTime + 1.4);
+        this._audio = { ctx, gain };
+      } else if (this._audio) {
+        const { ctx, gain } = this._audio;
+        gain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.6);
+        setTimeout(() => { try { ctx.close(); } catch(e){} }, 700);
+        this._audio = null;
+      }
+    } catch(e) {}
+  }
+
+  initARDrag() {
+    const asset = document.getElementById('ar-asset');
+    if (!asset) return;
+    let dragging=false, sx=0, sy=0, ox=0, oy=0;
+    this._arPos = { x:0, y:0 };
+    const down = (e) => { dragging=true; asset.style.cursor='grabbing'; sx=e.clientX; sy=e.clientY; ox=this._arPos.x; oy=this._arPos.y; };
+    const move = (e) => {
+      if(!dragging) return;
+      this._arPos.x = ox + (e.clientX - sx);
+      this._arPos.y = oy + (e.clientY - sy);
+      asset.style.left = `calc(50% + ${this._arPos.x}px)`;
+      asset.style.top = `calc(50% + ${this._arPos.y}px)`;
+    };
+    const up = () => { dragging=false; asset.style.cursor='grab'; };
+    asset.addEventListener('pointerdown', down);
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  }
+
+  initScrollSpy() {
+    const ids = ['hero','locations','pillars','experiences','diving','shop','concierge','about'];
+    const io = new IntersectionObserver((es) => {
+      es.forEach(e => { if (e.isIntersecting) this.setState({ activeSec: e.target.id }); });
+    }, { rootMargin: '-35% 0px -55% 0px' });
+    ids.forEach(id => { const el = document.getElementById(id); if (el) io.observe(el); });
+  }
+
+  focusHub(k) {
+    this._globeFocus = -this.HUB_XY[k].lon * Math.PI / 180;
+  }
+
+  startGlobe() {
+    const c = document.getElementById('rosi-globe');
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let rotY = 0.6, rotX = -0.42, dragging = false, lastX = 0, lastY = 0, moved = 0, t = 0;
+    this._globeFocus = null;
+    this._globeHold = 0;
+    this._markers = [];
+    const resize = () => { c.width = c.offsetWidth; c.height = c.offsetHeight; };
+    resize();
+    window.addEventListener('resize', resize);
+    const TO_R = Math.PI / 180;
+    const project = (latD, lonD) => {
+      const lat = latD * TO_R, lon = lonD * TO_R + rotY;
+      const x = Math.cos(lat) * Math.sin(lon), y = Math.sin(lat), z = Math.cos(lat) * Math.cos(lon);
+      return { x, y: y * Math.cos(rotX) - z * Math.sin(rotX), z: y * Math.sin(rotX) + z * Math.cos(rotX) };
+    };
+    const strokePath = (pts, R, cx, cy, backCol, frontCol, glow) => {
+      [[false, backCol || 'rgba(80,170,220,.10)'], [true, frontCol || 'rgba(100,185,235,.32)']].forEach(([front, col]) => {
+        ctx.beginPath();
+        let pen = false;
+        pts.forEach(p => {
+          const vis = front ? p.z > 0 : p.z <= 0;
+          const sx = cx + R * p.x, sy = cy - R * p.y;
+          if (vis) { if (pen) ctx.lineTo(sx, sy); else ctx.moveTo(sx, sy); pen = true; }
+          else pen = false;
+        });
+        ctx.strokeStyle = col;
+        if (front && glow) {
+          ctx.save(); ctx.shadowColor = 'rgba(245,140,40,.9)'; ctx.shadowBlur = 9; ctx.lineWidth = 1.6; ctx.stroke(); ctx.stroke(); ctx.restore();
+        } else {
+          ctx.lineWidth = glow ? 1.1 : 1; ctx.stroke();
+        }
+      });
+    };
+    const draw = () => {
+      const w = c.width, h = c.height;
+      const cx = w / 2, cy = h / 2 + 4;
+      const R = Math.min(w, h) * 0.36;
+      if (!dragging) {
+        if (this._globeFocus !== null) {
+          let d = this._globeFocus - rotY;
+          d = Math.atan2(Math.sin(d), Math.cos(d));
+          let dX = -0.42 - rotX;
+          dX = Math.atan2(Math.sin(dX), Math.cos(dX));
+          if (Math.abs(dX) > 0.004) rotX += dX * 0.08;
+          if (Math.abs(d) > 0.004) rotY += d * 0.08;
+          else { this._globeFocus = null; this._globeHold = Date.now() + 4500; }
+        } else if (!reduced && Date.now() > this._globeHold) {
+          rotY += 0.0032;
+        }
+      }
+      ctx.clearRect(0, 0, w, h);
+      ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(100,185,235,.5)'; ctx.lineWidth = 1.2; ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx, cy, R * 1.12, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(100,185,235,.16)'; ctx.lineWidth = 1; ctx.setLineDash([2, 7]); ctx.stroke(); ctx.setLineDash([]);
+      for (let lat = -60; lat <= 60; lat += 30) {
+        const pts = [];
+        for (let lon = 0; lon <= 360; lon += 5) pts.push(project(lat, lon));
+        strokePath(pts, R, cx, cy);
+      }
+      for (let lon = 0; lon < 360; lon += 30) {
+        const pts = [];
+        for (let lat = -90; lat <= 90; lat += 5) pts.push(project(lat, lon));
+        strokePath(pts, R, cx, cy);
+      }
+      // 2D world map: simplified continent coastlines on the sphere
+      this.COAST.forEach(poly => {
+        const pts = [];
+        for (let i = 0; i < poly.length; i++) {
+          const a = poly[i], b = poly[(i + 1) % poly.length];
+          const steps = Math.max(1, Math.ceil(Math.max(Math.abs(b[0] - a[0]), Math.abs(b[1] - a[1])) / 4));
+          for (let q = 0; q < steps; q++) pts.push(project(a[1] + (b[1] - a[1]) * q / steps, a[0] + (b[0] - a[0]) * q / steps));
+        }
+        pts.push(pts[0]);
+        strokePath(pts, R, cx, cy, 'rgba(245,140,40,.12)', 'rgba(247,148,42,.95)', true);
+      });
+      this._markers = [];
+      const sel = this.state.selLoc;
+      Object.keys(this.HUB_XY).forEach(k => {
+        const p = project(this.HUB_XY[k].lat, this.HUB_XY[k].lon);
+        const sx = cx + R * p.x, sy = cy - R * p.y;
+        const front = p.z > 0.02;
+        this._markers.push({ k, sx, sy, front });
+        const nm = this.LOCATIONS[k].name.toUpperCase();
+        const alignRight = sx < cx;
+        if (!front) {
+          // dim ghost label on the far side so every hub name stays visible
+          ctx.beginPath(); ctx.arc(sx, sy, 2.6, 0, Math.PI * 2); ctx.fillStyle = 'rgba(240,179,60,.18)'; ctx.fill();
+          ctx.font = '500 8.5px "Spline Sans Mono", monospace';
+          ctx.textAlign = alignRight ? 'right' : 'left';
+          ctx.fillStyle = 'rgba(207,230,226,.22)';
+          ctx.fillText(nm, sx + (alignRight ? -8 : 8), sy - 6);
+          ctx.textAlign = 'left';
+          return;
+        }
+        if (k === sel) {
+          const ph = (t % 70) / 70;
+          ctx.beginPath(); ctx.arc(sx, sy, 9 + ph * 20, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(232,98,58,' + (0.55 * (1 - ph)).toFixed(3) + ')'; ctx.lineWidth = 1.5; ctx.stroke();
+          ctx.beginPath(); ctx.arc(sx, sy, 6.5, 0, Math.PI * 2); ctx.fillStyle = '#E8623A'; ctx.fill();
+          ctx.beginPath(); ctx.arc(sx, sy, 2.4, 0, Math.PI * 2); ctx.fillStyle = '#fff'; ctx.fill();
+          ctx.font = '600 11px "Spline Sans Mono", monospace';
+          ctx.textAlign = alignRight ? 'right' : 'left';
+          ctx.fillStyle = '#F0B33C';
+          ctx.fillText(nm, sx + (alignRight ? -14 : 14), sy - 10);
+          ctx.textAlign = 'left';
+        } else {
+          ctx.beginPath(); ctx.arc(sx, sy, 4.5, 0, Math.PI * 2); ctx.fillStyle = 'rgba(240,179,60,.85)'; ctx.fill();
+          ctx.font = '500 9.5px "Spline Sans Mono", monospace';
+          ctx.textAlign = alignRight ? 'right' : 'left';
+          ctx.fillStyle = 'rgba(207,230,226,.85)';
+          ctx.fillText(nm, sx + (alignRight ? -9 : 9), sy - 7);
+          ctx.textAlign = 'left';
+        }
+      });
+      // always-visible selected location label
+      ctx.font = '600 12px "Spline Sans Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#F0B33C';
+      ctx.fillText(this.LOCATIONS[sel].name.toUpperCase(), cx, cy + R + 12);
+      ctx.font = '10px "Spline Sans Mono", monospace';
+      ctx.fillStyle = 'rgba(159,189,184,.85)';
+      ctx.fillText(this.LOCATIONS[sel].coord, cx, cy + R + 26);
+      ctx.textAlign = 'left';
+      t++;
+      this._rafGlobe = requestAnimationFrame(draw);
+    };
+    const down = (e) => { dragging = true; moved = 0; lastX = e.clientX; lastY = e.clientY; c.style.cursor = 'grabbing'; if (c.setPointerCapture) c.setPointerCapture(e.pointerId); };
+    const move = (e) => { if (!dragging) return; const dx = e.clientX - lastX, dy = e.clientY - lastY; lastX = e.clientX; lastY = e.clientY; moved += Math.abs(dx) + Math.abs(dy); rotY += dx * 0.006; rotX += dy * 0.006; };
+    const up = (e) => {
+      if (!dragging) return;
+      dragging = false; c.style.cursor = 'grab';
+      this._globeHold = Date.now() + 3500;
+      if (moved < 5) {
+        const r = c.getBoundingClientRect();
+        const mx = e.clientX - r.left, my = e.clientY - r.top;
+        const hit = this._markers.find(m => m.front && Math.hypot(m.sx - mx, m.sy - my) < 16);
+        if (hit) { this.setState({ selLoc: hit.k }); this.focusHub(hit.k); }
+      }
+    };
+    c.addEventListener('pointerdown', down);
+    c.addEventListener('pointermove', move);
+    c.addEventListener('pointerup', up);
+    c.addEventListener('pointerleave', () => { if (dragging) { dragging = false; c.style.cursor = 'grab'; } });
+    draw();
+  }
+
+  startSonar() {
+    const c = document.getElementById('rosi-sonar');
+    if (!c) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const ctx = c.getContext('2d');
+    let t = 0;
+    const resize = () => { c.width = c.offsetWidth; c.height = c.offsetHeight; };
+    resize();
+    window.addEventListener('resize', resize);
+    const cx = () => c.width * 0.78, cy = () => c.height * 0.34;
+    // interactive fish school
+    this._fpt = { x: -9999, y: -9999 };
+    const hero = document.getElementById('hero');
+    if (hero) {
+      hero.addEventListener('pointermove', (e) => { const r = c.getBoundingClientRect(); this._fpt.x = e.clientX - r.left; this._fpt.y = e.clientY - r.top; });
+      hero.addEventListener('pointerleave', () => { this._fpt.x = -9999; this._fpt.y = -9999; });
+    }
+    const FISH_COLS = ['rgba(207,230,226,.45)','rgba(63,142,134,.6)','rgba(232,98,58,.55)','rgba(240,179,60,.5)','rgba(159,189,184,.4)'];
+    const fishes = [];
+    for (let i = 0; i < 16; i++) {
+      fishes.push({
+        x: Math.random() * (c.width || 1200),
+        yF: 0.76 + Math.random() * 0.13,
+        y: 0,
+        vx: 0, vy: 0,
+        dir: Math.random() > 0.5 ? 1 : -1,
+        speed: 0.4 + Math.random() * 0.9,
+        s: 7 + Math.random() * 9,
+        ph: Math.random() * Math.PI * 2,
+        col: FISH_COLS[i % FISH_COLS.length],
+      });
+    }
+    let nibbleT = -999, nextDash = 260, dasher = null;
+    this._bait = null;
+    const waves = [
+      { amp:24, len:0.009, sp:0.0144, y:0.74, col:'rgba(63,142,134,0.22)', line:'rgba(207,230,226,.30)' },
+      { amp:34, len:0.007, sp:0.0096, y:0.84, col:'rgba(232,98,58,0.12)', line:'rgba(232,98,58,.24)' },
+    ];
+    const draw = () => {
+      ctx.clearRect(0,0,c.width,c.height);
+      // bathymetric contour rings around a focal point (sonar)
+      const maxR = Math.max(c.width, c.height) * 0.9;
+      for (let i=0;i<5;i++){
+        const phase = (t*0.6 + i*106) % 528;
+        const r = (phase/528) * maxR;
+        const alpha = 0.12 * (1 - phase/528);
+        ctx.beginPath();
+        ctx.arc(cx(), cy(), r, 0, Math.PI*2);
+        ctx.strokeStyle = `rgba(63,142,134,${alpha})`;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+      // flat-graphic fishing boat riding the front wave (15% smaller, mirrored, raised out of the water)
+      if (c.width >= 720) {
+        const L0 = waves[0];
+        const xb = c.width * 0.78;
+        const phw = xb * L0.len + t * L0.sp;
+        const S = Math.max(63, Math.min(c.width * 0.072, 112));
+        const yb = c.height * L0.y + Math.sin(phw) * L0.amp - 0.15 * S;
+        const ang = Math.atan(L0.amp * L0.len * Math.cos(phw));
+        ctx.save();
+        ctx.translate(xb, yb);
+        ctx.rotate(ang);
+        ctx.scale(-1, 1);
+        ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+        // hull
+        ctx.beginPath();
+        ctx.moveTo(-S, -0.06*S);
+        ctx.lineTo(-0.72*S, 0.3*S);
+        ctx.lineTo(0.62*S, 0.3*S);
+        ctx.lineTo(1.05*S, -0.2*S);
+        ctx.lineTo(0.68*S, -0.06*S);
+        ctx.closePath();
+        ctx.fillStyle = '#0A2530'; ctx.fill();
+        // orange gunwale stripe
+        ctx.beginPath(); ctx.moveTo(-0.97*S, -0.03*S); ctx.lineTo(0.66*S, -0.03*S);
+        ctx.strokeStyle = '#E8623A'; ctx.lineWidth = 0.07*S; ctx.stroke();
+        // cabin
+        ctx.fillStyle = '#F4EEDD';
+        ctx.fillRect(-0.52*S, -0.52*S, 0.56*S, 0.46*S);
+        ctx.fillStyle = '#0A2530';
+        ctx.fillRect(-0.43*S, -0.43*S, 0.15*S, 0.16*S);
+        ctx.fillRect(-0.2*S, -0.43*S, 0.15*S, 0.16*S);
+        // roof
+        ctx.fillStyle = '#E8623A';
+        ctx.fillRect(-0.58*S, -0.6*S, 0.68*S, 0.08*S);
+        // mast + pennant
+        ctx.strokeStyle = '#F4EEDD'; ctx.lineWidth = Math.max(2, 0.022*S);
+        ctx.beginPath(); ctx.moveTo(-0.3*S, -0.6*S); ctx.lineTo(-0.3*S, -1.02*S); ctx.stroke();
+        ctx.fillStyle = '#F0B33C';
+        ctx.beginPath(); ctx.moveTo(-0.3*S, -1.02*S); ctx.lineTo(-0.04*S, -0.94*S); ctx.lineTo(-0.3*S, -0.86*S); ctx.closePath(); ctx.fill();
+        // bent fishing rod + line + bobber
+        ctx.strokeStyle = '#F4EEDD'; ctx.lineWidth = Math.max(2, 0.02*S);
+        ctx.beginPath(); ctx.moveTo(0.3*S, -0.06*S);
+        ctx.quadraticCurveTo(0.8*S, -1.0*S, 1.34*S, -0.78*S);
+        ctx.stroke();
+        const nib = t - nibbleT;
+        const dip = nib < 46 ? Math.sin(nib * 0.6) * 0.09 * S * (1 - nib / 46) : 0;
+        const bobY = 0.24*S + Math.sin(t*0.05)*0.04*S + dip;
+        ctx.strokeStyle = 'rgba(244,238,221,.45)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(1.34*S, -0.78*S); ctx.lineTo(1.42*S, bobY); ctx.stroke();
+        ctx.fillStyle = '#E8623A';
+        ctx.beginPath(); ctx.arc(1.42*S, bobY, 0.04*S, 0, Math.PI*2); ctx.fill();
+        ctx.restore();
+        // world position of the bobber (boat is mirrored + rotated)
+        const cA = Math.cos(ang), sA = Math.sin(ang);
+        this._bait = { x: xb + (-1.42*S*cA - bobY*sA), y: yb + (-1.42*S*sA + bobY*cA) };
+        // nibble ripple
+        if (nib < 46) {
+          const rr = 4 + nib * 0.7;
+          ctx.beginPath(); ctx.arc(this._bait.x, this._bait.y, rr, 0, Math.PI*2);
+          ctx.strokeStyle = 'rgba(244,238,221,' + (0.4 * (1 - nib/46)).toFixed(3) + ')';
+          ctx.lineWidth = 1; ctx.stroke();
+        }
+      } else { this._bait = null; }
+      // occasionally send a random fish darting to the bait
+      if (this._bait && !dasher && t > nextDash) {
+        dasher = fishes[Math.floor(Math.random() * fishes.length)];
+        dasher.dashing = true; dasher.dashT = t;
+      }
+      // interactive fish school below the waterline (flees the cursor)
+      fishes.forEach(f => {
+        if (!f.y) f.y = c.height * f.yF;
+        if (f.dashing && this._bait) {
+          // dart toward the bobber
+          const bdx = this._bait.x - f.x, bdy = this._bait.y - f.y;
+          const bd = Math.hypot(bdx, bdy) || 1;
+          f.vx += (bdx / bd) * 1.35; f.vy += (bdy / bd) * 1.35;
+          f.vx *= 0.9; f.vy *= 0.9;
+          f.x += f.vx; f.y += f.vy;
+          if (bd < 16 || t - f.dashT > 360) {
+            if (bd < 16) nibbleT = t;
+            f.dashing = false; dasher = null;
+            nextDash = t + 320 + Math.random() * 480;
+            f.vx = -f.dir * 3; f.vy = 3.5;
+          }
+          const wobD = Math.sin(t * 0.2 + f.ph) * 1.2;
+          ctx.save();
+          ctx.translate(f.x, f.y + wobD);
+          if (f.vx < 0) ctx.scale(-1, 1);
+          ctx.fillStyle = f.col;
+          ctx.beginPath(); ctx.ellipse(0, 0, f.s, f.s * 0.42, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.moveTo(-f.s * 0.85, 0); ctx.lineTo(-f.s * 1.45, -f.s * 0.5); ctx.lineTo(-f.s * 1.45, f.s * 0.5); ctx.closePath(); ctx.fill();
+          ctx.fillStyle = 'rgba(4,18,24,.85)';
+          ctx.beginPath(); ctx.arc(f.s * 0.5, -f.s * 0.06, Math.max(1.2, f.s * 0.09), 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
+          return;
+        }
+        if (f.dashing) { f.dashing = false; dasher = null; }
+        const dxp = f.x - this._fpt.x, dyp = f.y - this._fpt.y;
+        const d = Math.hypot(dxp, dyp) || 1;
+        if (d < 140) { const force = (140 - d) / 140; f.vx += (dxp / d) * force * 1.4; f.vy += (dyp / d) * force * 1.4; }
+        f.vx += (f.dir * f.speed - f.vx) * 0.03;
+        f.vy += (c.height * f.yF - f.y) * 0.004 - f.vy * 0.06;
+        f.x += f.vx; f.y += f.vy;
+        if (f.x < -70) f.x = c.width + 70;
+        if (f.x > c.width + 70) f.x = -70;
+        const minY = c.height * waves[0].y + 24, maxY = Math.max(minY + 40, c.height - 120);
+        if (f.y < minY) f.y = minY;
+        if (f.y > maxY) f.y = maxY;
+        const wob = Math.sin(t * 0.08 + f.ph) * 1.6;
+        ctx.save();
+        ctx.translate(f.x, f.y + wob);
+        if (f.vx < 0) ctx.scale(-1, 1);
+        ctx.fillStyle = f.col;
+        ctx.beginPath(); ctx.ellipse(0, 0, f.s, f.s * 0.42, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(-f.s * 0.85, 0); ctx.lineTo(-f.s * 1.45, -f.s * 0.5); ctx.lineTo(-f.s * 1.45, f.s * 0.5); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = 'rgba(4,18,24,.85)';
+        ctx.beginPath(); ctx.arc(f.s * 0.5, -f.s * 0.06, Math.max(1.2, f.s * 0.09), 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+      });
+      // wave layers at the bottom (drawn after the boat so the hull sits in the water)
+      waves.forEach((L,idx) => {
+        ctx.beginPath(); ctx.moveTo(0,c.height);
+        for (let x=0;x<=c.width;x+=6){ ctx.lineTo(x, c.height*L.y + Math.sin(x*L.len + t*L.sp + idx)*L.amp); }
+        ctx.lineTo(c.width,c.height); ctx.closePath();
+        ctx.fillStyle = L.col; ctx.fill();
+        ctx.beginPath();
+        for (let x=0;x<=c.width;x+=6){ const yy = c.height*L.y + Math.sin(x*L.len + t*L.sp + idx)*L.amp; if (x===0) ctx.moveTo(x,yy); else ctx.lineTo(x,yy); }
+        ctx.strokeStyle = L.line; ctx.lineWidth = 1.5; ctx.stroke();
+      });
+      t += 1;
+      this._raf = requestAnimationFrame(draw);
+    };
+    draw();
+  }
+
+  runCounters() {
+    const els = document.querySelectorAll('[data-count]');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting || e.target._done) return;
+        e.target._done = true;
+        const target = parseInt(e.target.getAttribute('data-count'),10);
+        const suf = e.target.getAttribute('data-suffix') || '';
+        let v = 0; const step = Math.max(1, Math.ceil(target/45));
+        const tick = () => { v += step; if (v >= target) v = target; e.target.textContent = v + suf; if (v < target) requestAnimationFrame(tick); };
+        tick();
+      });
+    }, { threshold:0.4 });
+    els.forEach(el => io.observe(el));
+  }
+
+  // GSAP ScrollTrigger scroll choreography; falls back to the old IO reveals if the CDN is unavailable.
+  // GSAP is loaded here (not via helmet script tags): the DC runtime re-injects helmet content while
+  // rendering, which would re-execute the CDN scripts and wipe the registered ScrollTriggers.
+  initGsapScroll() {
+    const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) return; // no scroll animation; content stays visible
+    if (window.gsap && window.ScrollTrigger) { this.buildScrollFX(); return; }
+    const add = (src, next) => {
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = next;
+      s.onerror = () => this.runReveals(); // offline / CDN blocked → plain IO reveals
+      document.head.appendChild(s);
+    };
+    add('https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js', () =>
+      add('https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js', () => this.buildScrollFX()));
+  }
+
+  buildScrollFX() {
+    if (!window.gsap || !window.ScrollTrigger) { this.runReveals(); return; }
+    gsap.registerPlugin(ScrollTrigger);
+
+    // clear leftovers from an earlier attempt whose tweens were orphaned by a re-render
+    const reveals = gsap.utils.toArray('[data-reveal]');
+    const grids = gsap.utils.toArray('[data-stagger]');
+    gsap.set(reveals, { clearProps: 'all' });
+    grids.forEach(g => { if (g.children.length) gsap.set(g.children, { clearProps: 'all' }); });
+
+    // section blocks: rise + fade once as they enter
+    gsap.utils.toArray('[data-reveal]').forEach(el => {
+      gsap.from(el, {
+        y: 44, autoAlpha: 0, duration: 1, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 86%', once: true },
+      });
+    });
+
+    // card grids: children cascade in with a stagger
+    gsap.utils.toArray('[data-stagger]').forEach(grid => {
+      if (!grid.children.length) return;
+      gsap.from(grid.children, {
+        y: 38, autoAlpha: 0, duration: .8, ease: 'power3.out', stagger: 0.09,
+        scrollTrigger: { trigger: grid, start: 'top 84%', once: true },
+      });
+    });
+
+    // hero: copy drifts up and dims as you scroll away; the sun sinks slower (parallax)
+    gsap.to('.rosi-hero-copy', {
+      yPercent: -14, autoAlpha: 0.25, ease: 'none',
+      scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom 25%', scrub: true },
+    });
+    gsap.to('.rosi-hero-sun', {
+      y: 110, ease: 'none',
+      scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true },
+    });
+
+    // pillar watermark numbers: slow counter-drift against the scroll
+    gsap.utils.toArray('#pillars article > span[aria-hidden]').forEach(w => {
+      gsap.fromTo(w, { y: 30 }, {
+        y: -18, ease: 'none',
+        scrollTrigger: { trigger: w.parentElement, start: 'top bottom', end: 'bottom top', scrub: true },
+      });
+    });
+
+    // recalc after webfonts/images settle
+    window.addEventListener('load', () => ScrollTrigger.refresh());
+
+    // self-heal: if the DC runtime reloaded GSAP and wiped the triggers, rebuild (max 3 tries)
+    this._fxRetries = (this._fxRetries || 0);
+    clearTimeout(this._fxCheckT);
+    this._fxCheckT = setTimeout(() => {
+      if (window.ScrollTrigger && !ScrollTrigger.getAll().length && this._fxRetries < 3) {
+        this._fxRetries++;
+        this.buildScrollFX();
+      }
+    }, 1600);
+  }
+
+  runReveals() {
+    const els = document.querySelectorAll('[data-reveal],[data-stagger]');
+    els.forEach(el => { el.style.opacity='0'; el.style.transform='translateY(30px)'; el.style.transition='opacity .8s ease, transform .8s ease'; });
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.style.opacity='1'; e.target.style.transform='none'; io.unobserve(e.target); } });
+    }, { threshold:0.12 });
+    els.forEach(el => io.observe(el));
+  }
+
+  makeBubbles() {
+    const f = document.getElementById('bubble-field');
+    if (!f) return;
+    for (let i=0;i<14;i++){
+      const b = document.createElement('span');
+      const size = 6 + Math.random()*16;
+      b.style.cssText = `position:absolute;bottom:-30px;left:${Math.random()*100}%;width:${size}px;height:${size}px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.5),rgba(255,255,255,.04));animation:bubble ${6+Math.random()*8}s linear ${Math.random()*6}s infinite`;
+      f.appendChild(b);
+    }
+  }
+
+  openDrawer(name){ document.body.style.overflow='hidden'; this.setState({ drawer:name }); }
+  closeDrawer = () => { document.body.style.overflow=''; this.setState({ drawer:null }); };
+  money(n){ return '€' + n.toFixed(2); }
+  addItem(p){ this.setState(s => ({ cart:[...s.cart, p] })); }
+
+  renderVals() {
+    const s = this.state;
+    const t = Object.assign({}, this.I18N.EN, this.I18N[s.lang] || {});
+
+    const cartItems = s.cart.map((p, idx) => ({
+      ...p, priceLabel: this.money(p.price),
+      remove: () => this.setState(st => ({ cart: st.cart.filter((_,i)=>i!==idx) })),
+    }));
+    const subtotal = s.cart.reduce((a,p)=>a+p.price,0);
+
+    const products = this.PRODUCTS.filter(p => s.filter==='all' || p.cat===s.filter).map(p => ({
+      ...p, priceLabel: this.money(p.price),
+      add: () => this.addItem({ name:p.name, price:p.price, icon:p.icon }),
+      previewAR: () => { document.body.style.overflow='hidden'; this.setState({ ar:true, arId:p.id, arRot:0, arScale:1 }); if(this._arPos){this._arPos.x=0;this._arPos.y=0;} const a=document.getElementById('ar-asset'); if(a){a.style.left='50%';a.style.top='50%';} },
+    }));
+
+    const selLoc = this.LOCATIONS[s.selLoc];
+    const locKeys = Object.keys(this.LOCATIONS);
+    const locI = locKeys.indexOf(s.selLoc);
+    const hubScenes = locKeys.map(k => ({ scene: this.LOCATIONS[k].scene, op: k === s.selLoc ? 1 : 0 }));
+    const n = locKeys.length;
+    const windowKeys = [-2,-1,0,1,2].map(off => locKeys[(locI + off + n) % n]);
+    const hubCards = windowKeys.map(k => ({
+      ...this.LOCATIONS[k],
+      border: k === s.selLoc ? '#E8623A' : 'rgba(207,230,226,.18)',
+      dim: k === s.selLoc ? 1 : 0.78,
+      scale: k === s.selLoc ? 1.1 : 1,
+      pick: () => { this.setState({ selLoc: k }); this.focusHub(k); },
+    }));
+
+    const diningMap = t.dining;
+
+    const key = s.gfDest + '|' + s.gfTarget;
+    const rec = this.GF_RESULTS[key] || { name:'Custom Marine Kit', desc:`A tailored ${s.gfSkill}-level setup for ${s.gfDest} targeting ${s.gfTarget} species.`, price:249 };
+
+    const pillarBase = { boat:250, dining:180, diving:140, water:95 };
+    const bookingTotalNum = (pillarBase[s.bookingPillar]||250) * (Number(s.bookingGuests)||1) * 0.6 + (pillarBase[s.bookingPillar]||250);
+
+    const selBg = (cond) => cond ? 'rgba(232,98,58,.13)' : 'rgba(255,255,255,.03)';
+    const selBgL = (cond) => cond ? 'rgba(232,98,58,.12)' : 'rgba(255,255,255,.4)';
+    const selB = (cond) => cond ? '#E8623A' : 'rgba(10,26,31,.16)';
+    const dotOn = (cond) => cond ? '#E8623A' : 'rgba(10,26,31,.2)';
+    const filtBg = (c) => s.filter===c ? '#0A1A1F' : 'transparent';
+    const filtCol = (c) => s.filter===c ? '#fff' : '#4F5F57';
+
+    return {
+      t,
+      serifFont: s.lang === 'VI' ? "'Playfair Display'" : "'Instrument Serif'",
+      lang: s.lang,
+      langExpanded: s.langMenu ? 'true' : 'false',
+      toggleLangMenu: () => this.setState(st => ({ langMenu: !st.langMenu })),
+      langMenuOpacity: s.langMenu ? '1' : '0',
+      langMenuY: s.langMenu ? '0' : '-8px',
+      langMenuEvents: s.langMenu ? 'auto' : 'none',
+      langOptions: this.LANGS.map(l => ({
+        code: l.code, name: l.name, selected: s.lang===l.code ? 'true' : 'false',
+        bg: s.lang===l.code ? 'rgba(232,98,58,.16)' : 'transparent',
+        color: s.lang===l.code ? '#fff' : '#CFE6E2',
+        pick: () => this.setState({ lang:l.code, langMenu:false }),
+      })),
+
+      // ambient audio
+      toggleAudio: () => { const on=!s.audioOn; this.toggleAudioEngine(on); this.setState({ audioOn:on }); },
+      audioIcon: s.audioOn ? 'volume-high-outline' : 'volume-mute-outline',
+      eqAnim1: s.audioOn ? 'eq .9s ease-in-out infinite' : 'none',
+      eqAnim2: s.audioOn ? 'eq .9s ease-in-out .15s infinite' : 'none',
+      eqAnim3: s.audioOn ? 'eq .9s ease-in-out .3s infinite' : 'none',
+      eqAnim4: s.audioOn ? 'eq .9s ease-in-out .45s infinite' : 'none',
+
+      // mobile nav
+      toggleMobileMenu: () => this.setState(st => ({ mobileMenu: !st.mobileMenu })),
+      closeMobileMenu: () => this.setState({ mobileMenu:false }),
+      openBookingMobile: () => { this.setState({ mobileMenu:false, bookingDone:false }); this.openDrawer('booking'); },
+      mobileIcon: s.mobileMenu ? 'close-outline' : 'menu-outline',
+      mobileMenuY: s.mobileMenu ? '0' : '-14px',
+      mobileMenuOpacity: s.mobileMenu ? '1' : '0',
+      mobileMenuEvents: s.mobileMenu ? 'auto' : 'none',
+
+      // AR modal
+      ar: s.ar,
+      arOpacity: s.ar ? '1' : '0',
+      arEvents: s.ar ? 'auto' : 'none',
+      arRot: s.arRot,
+      arScale: s.arScale,
+      arIcon: (this.PRODUCTS.find(p=>p.id===s.arId)||{}).icon || 'gift-outline',
+      arName: (this.PRODUCTS.find(p=>p.id===s.arId)||{}).name || 'Souvenir',
+      closeAR: () => { document.body.style.overflow=''; this.setState({ ar:false }); },
+      arRotate: () => this.setState(st => ({ arRot: st.arRot + 45 })),
+      arBigger: () => this.setState(st => ({ arScale: Math.min(1.8, st.arScale + 0.15) })),
+      arSmaller: () => this.setState(st => ({ arScale: Math.max(0.5, st.arScale - 0.15) })),
+      arAddToCart: () => { const p=this.PRODUCTS.find(x=>x.id===s.arId); if(p) this.addItem({ name:p.name, price:p.price, icon:p.icon }); document.body.style.overflow=''; this.setState({ ar:false }); this.openDrawer('cart'); },
+
+      openBooking: () => { this.setState({ bookingDone:false }); this.openDrawer('booking'); },
+      openDiveBooking: () => { this.setState({ bookingDone:false, bookingPillar:'diving' }); this.openDrawer('booking'); },
+      openCart: () => this.openDrawer('cart'),
+      openAccount: () => this.openDrawer('account'),
+      closeDrawer: this.closeDrawer,
+      overlayOpacity: s.drawer ? '1' : '0',
+      overlayEvents: s.drawer ? 'auto' : 'none',
+      bookingX: s.drawer==='booking' ? '0' : '100%',
+      cartX: s.drawer==='cart' ? '0' : '100%',
+      accountX: s.drawer==='account' ? '0' : '100%',
+      bookingOpen2: !s.bookingDone,
+      bookingDone: s.bookingDone,
+      bookingCode: s.bookingCode,
+      bookingTotal: this.money(bookingTotalNum),
+      onPillarChange: (e) => this.setState({ bookingPillar:e.target.value }),
+      onGuestsChange: (e) => this.setState({ bookingGuests:e.target.value }),
+      submitBooking: (e) => { e.preventDefault(); const code='ROSI-'+Math.random().toString(36).slice(2,7).toUpperCase(); this.setState({ bookingDone:true, bookingCode:code }); },
+
+      cartCount: s.cart.length,
+      cartItems,
+      cartEmpty: s.cart.length===0,
+      cartHasItems: s.cart.length>0,
+      cartSubtotal: this.money(subtotal),
+      checkout: () => { alert('Checkout — '+this.money(subtotal)+' (demo)'); this.setState({ cart:[] }); this.closeDrawer(); },
+
+      pillars: this.PILLARS.map((p, i) => ({ ...p, ...(t.pillars[i] || {}), num: String(i + 1).padStart(2, '0') })),
+
+      products,
+      filterAll: () => this.setState({ filter:'all' }),
+      filterRods: () => this.setState({ filter:'rods' }),
+      filterLures: () => this.setState({ filter:'lures' }),
+      filterSouvenirs: () => this.setState({ filter:'souvenirs' }),
+      fAllBg: filtBg('all'), fAllColor: filtCol('all'),
+      fRodsBg: filtBg('rods'), fRodsColor: filtCol('rods'),
+      fLuresBg: filtBg('lures'), fLuresColor: filtCol('lures'),
+      fSouvBg: filtBg('souvenirs'), fSouvColor: filtCol('souvenirs'),
+
+      selLoc,
+      hubScenes, hubCards,
+      railX: 'calc(50% - ' + (locI * 206 + 95) + 'px)',
+      hubProgress: (((locI + 1) / locKeys.length) * 100).toFixed(1) + '%',
+      hubTitleAnim: (locI % 2 ? 'fadeUpB' : 'fadeUp') + ' .8s cubic-bezier(.22,1,.36,1) both',
+      locIdx: String(locI + 1).padStart(2, '0'),
+      locPrev: () => { const k = locKeys[(locI + locKeys.length - 1) % locKeys.length]; this.setState({ selLoc: k }); this.focusHub(k); },
+      locNext: () => { const k = locKeys[(locI + 1) % locKeys.length]; this.setState({ selLoc: k }); this.focusHub(k); },
+      curHubs: s.activeSec === 'locations' ? 'true' : 'false',
+      curPillars: s.activeSec === 'pillars' ? 'true' : 'false',
+      curExp: s.activeSec === 'experiences' ? 'true' : 'false',
+      curDive: s.activeSec === 'diving' ? 'true' : 'false',
+      curShop: s.activeSec === 'shop' ? 'true' : 'false',
+      curAbout: s.activeSec === 'about' ? 'true' : 'false',
+      bookSelected: () => { this.setState({ bookingDone:false }); this.openDrawer('booking'); },
+      bookHubLabel: t.bookHub.replace('{hub}', selLoc.short),
+      openTodayLabel: selLoc.slots + ' ' + t.openToday,
+
+      isStep1: s.story===1, isStep2: s.story===2, isStep3: s.story===3,
+      goStep1: () => this.setState({ story:1 }),
+      goStep2: () => this.setState({ story:2, reelPct:0 }),
+      goStep3: () => this.setState({ story:3 }),
+      reel: () => this.setState(st => {
+        if (st.reelPct >= 100) return {};
+        const p = Math.min(100, st.reelPct + 20);
+        if (p >= 100) {
+          clearTimeout(this._landT);
+          this._landT = setTimeout(() => { if (this.state.story === 2) this.setState({ story:3 }); }, 1300);
+        }
+        return { reelPct: p };
+      }),
+      reelPct: s.reelPct,
+      reelMsg: s.reelPct >= 100 ? t.reelLanded : t.reelCap + ' · ' + s.reelPct + '%',
+      reelBarCol: s.reelPct >= 100 ? '#F0B33C' : '#E8623A',
+      reelBtnBg: s.reelPct >= 100 ? '#3E8E86' : '#E8623A',
+      reelBtnLabel: s.reelPct >= 100 ? t.reelBtnDone : t.reelBtn,
+      reelIcon: s.reelPct >= 100 ? 'checkmark-circle' : 'fish',
+      reelFishCol: s.reelPct >= 100 ? '#F0B33C' : '#E8623A',
+      reelBobSpeed: s.reelPct >= 100 ? '4s' : (2.6 - s.reelPct * 0.014) + 's',
+
+      // diving depth rail
+      diveScene: (this.DIVE_DEPTHS.find(d => d.id === s.dive) || this.DIVE_DEPTHS[1]).scene,
+      diveShot: (this.DIVE_DEPTHS.find(d => d.id === s.dive) || this.DIVE_DEPTHS[1]).shot,
+      diveCap: (this.DIVE_DEPTHS.find(d => d.id === s.dive) || this.DIVE_DEPTHS[1]).cap,
+      diveStops: this.DIVE_DEPTHS.map(d => ({
+        m: d.m,
+        bg: s.dive === d.id ? 'rgba(240,179,60,.16)' : 'rgba(4,18,24,.55)',
+        border: s.dive === d.id ? '#F0B33C' : 'rgba(207,230,226,.2)',
+        col: s.dive === d.id ? '#F0B33C' : '#9FBDB8',
+        dot: s.dive === d.id ? '#F0B33C' : 'rgba(207,230,226,.35)',
+        pick: () => this.setState({ dive: d.id }),
+      })),
+
+      // deck logs
+      logs: this.LOGS.map((l, i) => ({ ...l, quote: t.logQuotes[i] || l.quote })),
+      diningTitle: diningMap[s.dining].t,
+      diningDetail: diningMap[s.dining].d,
+      pickSell: () => this.setState({ dining:'sell' }),
+      pickCook: () => this.setState({ dining:'cook' }),
+      pickChef: () => this.setState({ dining:'chef' }),
+      sellBg: selBg(s.dining==='sell'),
+      cookBg: selBg(s.dining==='cook'),
+      chefBg: selBg(s.dining==='chef'),
+      step1Bg: s.story===1 ? 'rgba(232,98,58,.09)' : 'transparent',
+      step2Bg: s.story===2 ? 'rgba(232,98,58,.09)' : 'transparent',
+      step3Bg: s.story===3 ? 'rgba(232,98,58,.09)' : 'transparent',
+      step1Border: s.story===1 ? '#E8623A' : 'rgba(207,230,226,.14)',
+      step2Border: s.story===2 ? '#E8623A' : 'rgba(207,230,226,.14)',
+      step3Border: s.story===3 ? '#E8623A' : 'rgba(207,230,226,.14)',
+
+      gfQ1: s.gf===1, gfQ2: s.gf===2, gfQ3: s.gf===3, gfQ4: s.gf===4,
+      dot1: dotOn(s.gf>=1), dot2: dotOn(s.gf>=2), dot3: dotOn(s.gf>=3), dot4: dotOn(s.gf>=4),
+      gfPrev: () => this.setState(st => ({ gf: Math.max(1, st.gf-1) })),
+      gfNext: () => this.setState(st => ({ gf: st.gf>=4 ? 1 : st.gf+1 })),
+      gfPrevVis: s.gf>1 ? 'visible' : 'hidden',
+      gfNextLabel: s.gf>=4 ? t.gfRestart : (s.gf===3 ? t.gfSee : t.gfNext),
+      pickDestNorway: () => this.setState({ gfDest:'norway' }),
+      pickDestMaldives: () => this.setState({ gfDest:'maldives' }),
+      pickDestAmalfi: () => this.setState({ gfDest:'amalfi' }),
+      destNorwayBg: selBgL(s.gfDest==='norway'), destNorwayBorder: selB(s.gfDest==='norway'),
+      destMaldivesBg: selBgL(s.gfDest==='maldives'), destMaldivesBorder: selB(s.gfDest==='maldives'),
+      destAmalfiBg: selBgL(s.gfDest==='amalfi'), destAmalfiBorder: selB(s.gfDest==='amalfi'),
+      pickTargetGiant: () => this.setState({ gfTarget:'giant' }),
+      pickTargetMedium: () => this.setState({ gfTarget:'medium' }),
+      pickTargetLight: () => this.setState({ gfTarget:'light' }),
+      tGiantBg: selBgL(s.gfTarget==='giant'), tGiantBorder: selB(s.gfTarget==='giant'),
+      tMediumBg: selBgL(s.gfTarget==='medium'), tMediumBorder: selB(s.gfTarget==='medium'),
+      tLightBg: selBgL(s.gfTarget==='light'), tLightBorder: selB(s.gfTarget==='light'),
+      pickSkillBeg: () => this.setState({ gfSkill:'beginner' }),
+      pickSkillInt: () => this.setState({ gfSkill:'intermediate' }),
+      pickSkillExp: () => this.setState({ gfSkill:'expert' }),
+      sBegBg: selBgL(s.gfSkill==='beginner'), sBegBorder: selB(s.gfSkill==='beginner'),
+      sIntBg: selBgL(s.gfSkill==='intermediate'), sIntBorder: selB(s.gfSkill==='intermediate'),
+      sExpBg: selBgL(s.gfSkill==='expert'), sExpBorder: selB(s.gfSkill==='expert'),
+      recName: rec.name, recDesc: rec.desc, recPrice: this.money(rec.price),
+      addRecToCart: () => { this.addItem({ name:rec.name, price:rec.price, icon:'trophy-outline' }); this.openDrawer('cart'); },
+
+      submitVip: (e) => { e.preventDefault(); e.target.reset(); alert(t.vipAlert); },
+      vipBtnLabel: t.vipBtn,
+      submitNews: (e) => { e.preventDefault(); e.target.reset(); alert('Subscribed to the Sea Log. (demo)'); },
+
+      loyaltyPoints: s.loyalty,
+      catches: s.catches,
+      noCatches: s.catches.length===0,
+      logCatch: (e) => {
+        e.preventDefault();
+        const sp = document.getElementById('catch-species').value;
+        const w = document.getElementById('catch-weight').value;
+        const loc = document.getElementById('catch-loc').value;
+        this.setState(st => ({ catches:[{ species:sp, weight:w, loc:loc }, ...st.catches], loyalty: st.loyalty+50 }));
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>
